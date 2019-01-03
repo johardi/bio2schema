@@ -9,8 +9,8 @@ import org.bio2schema.api.reconciliation.entitytype.GenericEntity;
 
 public abstract class StandardEntityReconciler<T extends GenericEntity> implements EntityReconciler<T> {
 
-  private final String serviceName;
-  private final Database database;
+  protected final String serviceName;
+  protected final Database database;
 
   public StandardEntityReconciler(@Nonnull String serviceName, @Nonnull Database database) {
     this.serviceName = checkNotNull(serviceName);

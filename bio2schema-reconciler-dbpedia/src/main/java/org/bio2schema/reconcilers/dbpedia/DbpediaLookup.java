@@ -5,14 +5,14 @@ import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.bio2schema.api.reconciliation.CachedEntityReconciler;
 import org.bio2schema.api.reconciliation.Database;
-import org.bio2schema.api.reconciliation.StandardEntityReconciler;
 import org.bio2schema.api.reconciliation.entitytype.GenericEntity;
 import org.bio2schema.util.JacksonUtils;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
-public class DbpediaLookup extends StandardEntityReconciler<GenericEntity> {
+public class DbpediaLookup extends CachedEntityReconciler<GenericEntity> {
 
   private static final double DEFAULT_SIMILARITY_THRESHOLD = 0.42;
 
