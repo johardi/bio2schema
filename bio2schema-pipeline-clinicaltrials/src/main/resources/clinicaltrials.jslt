@@ -5,8 +5,8 @@
 // ===== VARIABLE DEFINITIONS ======
 let studyName = if(.official_title) .official_title else .brief_title
 let studyDescription = if(.detailed_description.textblock) .detailed_description.textblock else .brief_summary.textblock
-let conditions = [ for(flatten([.condition])) { "name": ., "type": "Condition or disease" } ]
-let interventions = [ for(flatten([.intervention])) { "name": .intervention_name, "type": "Intervention or treatment" } ]
+let conditions = if(.condition) [ for(flatten([.condition])) { "name": ., "type": "Condition or disease" } ]
+let interventions = if(.intervention) [ for(flatten([.intervention])) { "name": .intervention_name, "type": "Intervention or treatment" } ]
 let studySubjects = unique([$conditions, $interventions])
 let leadSponsor = if(.sponsors.lead_sponsor) { "name": .sponsors.lead_sponsor.agency, "type": "Lead Sponsor" }
 let collaborators = if(.sponsors.collaborator) [ for(flatten([.sponsors.collaborator])) { "name": .agency, "type": "Collaborator" } ]
