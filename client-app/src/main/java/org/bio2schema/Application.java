@@ -1,6 +1,6 @@
 package org.bio2schema;
 
-import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -20,17 +20,12 @@ import org.bio2schema.api.pipeline.Pipeline;
 import org.bio2schema.apibinding.PipelineManager;
 import org.bio2schema.apibinding.Platform;
 import org.bio2schema.util.JacksonUtils;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.base.Stopwatch;
 
 public class Application {
 
   private static Logger logger = LogManager.getRootLogger();
-
-  private static ObjectMapper mapper = new ObjectMapper();
 
   public static void main(String[] args) throws IOException {
 
@@ -42,12 +37,17 @@ public class Application {
     logger.info("");
     Optional<Pipeline> foundPipeline = pipelineManager.getPipelineFor(datasetName);
     if (foundPipeline.isPresent()) {
-      logger.info("--- source-data-location ---");
-      String dataArgument = args[1];
-      Path dataSourcePath = Paths.get(dataArgument);
-      logger.info("Using " + dataSourcePath);
+      logger.info("--- input-data-location ---");
+      String inputLocation = args[1];
+      Path inputLocationPath = Paths.get(inputLocation);
+      logger.info("Using " + inputLocationPath);
       logger.info("");
-      int numberOfThreads = (args.length == 3) ? Integer.parseInt(args[2]) : 1;
+      logger.info("--- output-result-location ---");
+      String outputLocation = args[2];
+      Path outputLocationPath = Paths.get(outputLocation);
+      logger.info("Using " + outputLocationPath);
+      logger.info("");
+      int numberOfThreads = (args.length == 4) ? Integer.parseInt(args[3]) : 1;
       logger.info("--- number-of-threads ---");
       if (numberOfThreads <= 0) {
         logger.warn("Invalid number for number-of-threads argument: {}", numberOfThreads);
@@ -62,10 +62,10 @@ public class Application {
       logger.info("");
       logger.info("--- pipeline-exec ---");
       final Pipeline pipeline = foundPipeline.get();
-      if (isDirectory(dataSourcePath)) {
-        processInputDirectory(pipeline, dataSourcePath, numberOfThreads);
+      if (isDirectory(inputLocationPath)) {
+        processInputDirectory(pipeline, inputLocationPath, outputLocationPath, numberOfThreads);
       } else {
-        processInputFile(pipeline, dataSourcePath);
+        processInputFile(pipeline, inputLocationPath, outputLocationPath);
       }
       logger.info("");
       logger.info("TASK DONE in {}", formatDuration(stopwatch));
@@ -78,13 +78,14 @@ public class Application {
     return Files.isDirectory(path);
   }
 
-  private static void processInputDirectory(Pipeline pipeline, Path dirPath, int numberOfThreads) {
+  private static void processInputDirectory(Pipeline pipeline, Path inputDirPath,
+      Path outputDirPath, int numberOfThreads) {
     try {
       ForkJoinPool fjp = new ForkJoinPool(numberOfThreads);
       List<CompletableFuture<Boolean>> list =
-          Files.walk(dirPath).filter(filePath -> filePath.toString().endsWith(".xml"))
+          Files.walk(inputDirPath).filter(filePath -> filePath.toString().endsWith(".xml"))
               .map(filePath -> CompletableFuture
-                  .supplyAsync(() -> processInputFile(pipeline, filePath), fjp))
+                  .supplyAsync(() -> processInputFile(pipeline, filePath, outputDirPath), fjp))
               .collect(Collectors.toList());
       list.stream().map(CompletableFuture::join).forEach(item -> {
         /* Does nothing */ });
@@ -94,14 +95,17 @@ public class Application {
     }
   }
 
-  private static boolean processInputFile(Pipeline pipeline, Path filePath) {
+  private static boolean processInputFile(Pipeline pipeline, Path inputFilePath,
+      Path outputDirPath) {
     boolean success = true;
     try {
-      logger.info("Processing {}", filePath.getFileName());
-      Reader reader = new FileReader(filePath.toFile(), StandardCharsets.UTF_8);
+      logger.info("Processing {}", inputFilePath.getFileName());
+      Reader reader = new FileReader(inputFilePath.toFile(), StandardCharsets.UTF_8);
       JsonNode input = JacksonUtils.readXmlAsJson(reader);
       JsonNode output = pipeline.process(input);
-      writeOutput(filePath, output);
+      String outputFileName = getFileName(inputFilePath) + ".json";
+      Path outputFilePath = Paths.get(outputDirPath.toString(), outputFileName);
+      writeOutput(outputFilePath, output);
     } catch (Exception e) {
       logger.error(e.getMessage());
       success = false;
@@ -109,11 +113,8 @@ public class Application {
     return success;
   }
 
-  private static void writeOutput(Path filePath, JsonNode content) throws IOException {
-    String parent = filePath.getParent().toString();
-    String filename = getFileName(filePath) + ".json";
-    ObjectWriter writer = mapper.writer(new DefaultPrettyPrinter());
-    writer.writeValue(new File(parent, filename), content);
+  private static void writeOutput(Path outputFilePath, JsonNode content) throws IOException {
+    JacksonUtils.prettyPrint(content, new FileOutputStream(outputFilePath.toFile()));
   }
 
   private static String getFileName(Path inputPath) {
