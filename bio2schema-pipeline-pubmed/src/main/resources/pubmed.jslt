@@ -1,0 +1,92 @@
+// Name: PubMed XML Mapping to Schema.org
+// Version: 1.0
+// Format: JSLT (https://github.com/schibsted/jslt)
+
+// ===== VARIABLE DEFINITIONS ======
+let articleIdentifiers = flatten([.PubmedData.ArticleIdList.ArticleId])
+let publicationTypes = unique([.MedlineCitation.Article.PublicationTypeList.PublicationType])
+let articleTypes = [ for($publicationTypes) ."" ]
+let abstractText = .MedlineCitation.Article.Abstract.AbstractText
+let articleDescription = if(is-array($abstractText)) join([ for($abstractText) if(is-object(.)) ."" else . ], " ") else $abstractText
+let articleAnnotatedDescriptions = if(is-array($abstractText)) [ for($abstractText) if(is-object(.)) .Label + ": " + ."" else . ]
+let articleKeywords = [ for(unique([.MedlineCitation.KeywordList.Keyword])) ."" ]
+let pagination = split(.MedlineCitation.Article.Pagination.MedlinePgn, "-")
+let articlePageStart = if(is-array($pagination)) number($pagination[0]) else $pagination
+let articlePageEnd = if(is-array($pagination)) number($pagination[1])
+let articlePagination = .MedlineCitation.Article.Pagination.MedlinePgn
+let elocations = unique([.MedlineCitation.Article.ELocationID])
+let articleDoi = { for($elocations) "url": "http://doi.org/" + ."" if(.EIdType=="doi") }
+let articlePublicationDate = if (.MedlineCitation.Article.ArticleDate)
+   .MedlineCitation.Article.ArticleDate.Year +
+   "-" + .MedlineCitation.Article.ArticleDate.Month +
+   "-" + .MedlineCitation.Article.ArticleDate.Day
+let authors = unique([.MedlineCitation.Article.AuthorList.Author])
+let grantList = unique([.MedlineCitation.Article.GrantList.Grant])
+let agencies = unique([ for($grantList) .Agency ])
+let articleCitations = flatten([.PubmedData.ReferenceList.Reference])
+let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
+
+// ===== MAPPING DEFINITION ========
+{
+  "@context": "http://schema.org",
+  "@type": "MedicalScholarlyArticle",
+  "@id": "http://identifiers.org/pubmed/" + .MedlineCitation.PMID."",
+  "identifier": [ for($articleIdentifiers) {
+    "@type": "PropertyValue",
+    "name": .IdType,
+    "value": .""
+  }],
+  "publicationType": $articleTypes,
+  "name": .MedlineCitation.Article.ArticleTitle,
+  "description": $articleDescription,
+  "disambiguatingDescription": $articleAnnotatedDescriptions,
+  "keywords": $articleKeywords,
+  "pageStart": $articlePageStart,
+  "pageEnd": if($articlePageEnd < $articlePageStart) $articlePageStart + $articlePageEnd - 1 else $articlePageEnd,
+  "pagination": $articlePagination,
+  "url": $articleDoi.url,
+  "datePublished": $articlePublicationDate,
+  "inLanguage": .MedlineCitation.Article.Language,
+  "author": [ for($authors) {
+    "@id": if(.Identifier.Source=="ORCID") "http://identifiers.org/orcid/"
+        + capture(.Identifier."", "http://orcid.org/(?<value>.+)$").value,
+    "@type": "Person",
+    "givenName": .ForeName,
+    "familyName": .LastName,
+    "affiliation": if(.AffiliationInfo) {
+      "@type": "Organization",
+      "name": if(is-array(.AffiliationInfo)) .AffiliationInfo[0].Affiliation
+              else .AffiliationInfo.Affiliation
+    },
+    "url": if (.Identifier.Source=="ORCID") .Identifier.""
+  }],
+  "isPartOf": if(.MedlineCitation.Article.Journal) {
+    "@type": "PublicationIssue",
+    "issueNumber": number(.MedlineCitation.Article.Journal.JournalIssue.Issue),
+    "datePublished": number(.MedlineCitation.Article.Journal.JournalIssue.PubDate.Year),
+    "isPartOf": {
+      "@type": ["Periodical" , "PublicationVolume"],
+      "name": .MedlineCitation.Article.Journal.Title,
+      "alternateName": .MedlineCitation.Article.Journal.ISOAbbreviation,
+      "issn": .MedlineCitation.Article.Journal.ISSN."",
+      "volumeNumber": number(.MedlineCitation.Article.Journal.JournalIssue.Volume)
+    }
+  },
+  "funder": [ for($agencies) {
+    "@type": "Organization",
+    "name": .
+  }],
+  "citation": [ for($articleCitations) {
+    "@type": "MedicalScholarlyArticle",
+    "@id": "http://identifiers.org/pubmed/" + .ArticleIdList.ArticleId.""
+  } if(.)],
+  "about": [ for($meshHeadings) {
+    "@type": "MedicalEntity",
+    "name": .DescriptorName."",
+    "code": {
+      "@type": "MedicalCode",
+      "codeValue": .DescriptorName.UI,
+      "codingSystem": "MESH"
+    }
+  }]
+}

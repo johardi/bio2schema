@@ -1,0 +1,103 @@
+<PubmedArticle>
+  <MedlineCitation Status="In-Process" Owner="NLM">
+    <PMID Version="1">30520918</PMID>
+    <DateRevised>
+      <Year>2018</Year>
+      <Month>12</Month>
+      <Day>19</Day>
+    </DateRevised>
+    <Article PubModel="Print">
+      <Journal>
+        <ISSN IssnType="Electronic">1463-9084</ISSN>
+        <JournalIssue CitedMedium="Internet">
+          <Volume>21</Volume>
+          <Issue>1</Issue>
+          <PubDate>
+            <Year>2018</Year>
+            <Month>Dec</Month>
+            <Day>19</Day>
+          </PubDate>
+        </JournalIssue>
+        <Title>Physical chemistry chemical physics : PCCP</Title>
+        <ISOAbbreviation>Phys Chem Chem Phys</ISOAbbreviation>
+      </Journal>
+      <ArticleTitle>Shear flow simulations of smectic liquid crystals based on the Gay-Berne fluid and the soft sphere string-fluid.</ArticleTitle>
+      <Pagination>
+        <MedlinePgn>292-305</MedlinePgn>
+      </Pagination>
+      <ELocationID EIdType="doi" ValidYN="Y">10.1039/c8cp05077e</ELocationID>
+      <Abstract>
+        <AbstractText>We have studied the shear flow of the smectic A phase of three coarse grained liquid crystal model systems, namely two versions of the Gay-Berne fluid and the soft sphere string-fluid. At low shear rates, the orientation where the smectic layers are parallel to the shear plane and the orientation parallel to the vorticity plane are both stable in all the systems. In one of the Gay-Berne fluids, there is a transition from the orientation parallel to the shear plane to the orientation parallel to the vorticity plane. At higher shear rates, a nonequilibrium nematic phase is obtained in all the systems in the same way as in linear alkanes under shear. If the initial configuration is an equilibrium smectic A phase or a nematic phase with the molecules parallel to the streamlines, the orientation parallel to the shear plane is attained at low shear rates in the Gay-Berne fluids. In order to analyze the stability of the different orientations, the torque acting on the liquid crystal is calculated. It consists of an elastic torque caused by deformations due to the shape of the simulation cell and the periodic boundary conditions and a shear-induced torque. The elastic torque stabilizes both the orientation parallel to the shear plane and the orientation parallel to the vorticity plane because the liquid crystal is deformed if it is turned away from these orientations. The shear-induced torque, on the other hand, always turns the liquid crystal to the orientation parallel to the vorticity plane where the viscosity and the irreversible energy dissipation rate are minimal. Since the latter torque is proportional to the square of the shear rate, rather high shear rates are required for it to overwhelm the elastic torque. However, the elastic torque decreases with the system size so that it is likely that the shear-induced torque will dominate in large systems and that the orientation parallel to the vorticity plane will be attained at low or even zero shear rate.</AbstractText>
+      </Abstract>
+      <AuthorList CompleteYN="Y">
+        <Author ValidYN="Y">
+          <LastName>Sarman</LastName>
+          <ForeName>Sten</ForeName>
+          <Initials>S</Initials>
+          <Identifier Source="ORCID">http://orcid.org/0000-0003-1702-5645</Identifier>
+          <AffiliationInfo>
+            <Affiliation>Department of Materials and Environmental Chemistry, Arrhenius Laboratory, Stockholm University, 106 91 Stockholm, Sweden. sarman@ownit.nu.</Affiliation>
+          </AffiliationInfo>
+        </Author>
+        <Author ValidYN="Y">
+          <LastName>Wang</LastName>
+          <ForeName>Yong-Lei</ForeName>
+          <Initials>YL</Initials>
+          <Identifier Source="ORCID">http://orcid.org/0000-0003-3393-7257</Identifier>
+          <AffiliationInfo>
+            <Affiliation>Department of Chemistry, Stanford University, Stanford, California 94305, USA.</Affiliation>
+          </AffiliationInfo>
+        </Author>
+        <Author ValidYN="Y">
+          <LastName>Laaksonen</LastName>
+          <ForeName>Aatto</ForeName>
+          <Initials>A</Initials>
+          <Identifier Source="ORCID">http://orcid.org/0000-0001-9783-4535</Identifier>
+          <AffiliationInfo>
+            <Affiliation>Department of Materials and Environmental Chemistry, Arrhenius Laboratory, Stockholm University, 106 91 Stockholm, Sweden. sarman@ownit.nu and Department of Chemistry, Ångström Laboratory, Uppsala University, Box 538 751 21, Uppsala, Sweden and Centre of Advanced Research in Bionanoconjugates and Biopolymers, Petru Poni Institute of Macromolecular Chemistry Aleea Grigore Ghica-Voda, 41A, 700487 Iasi, Romania.</Affiliation>
+          </AffiliationInfo>
+        </Author>
+      </AuthorList>
+      <Language>eng</Language>
+      <PublicationTypeList>
+        <PublicationType UI="D016428">Journal Article</PublicationType>
+      </PublicationTypeList>
+    </Article>
+    <MedlineJournalInfo>
+      <Country>England</Country>
+      <MedlineTA>Phys Chem Chem Phys</MedlineTA>
+      <NlmUniqueID>100888160</NlmUniqueID>
+      <ISSNLinking>1463-9076</ISSNLinking>
+    </MedlineJournalInfo>
+  </MedlineCitation>
+  <PubmedData>
+    <History>
+      <PubMedPubDate PubStatus="pubmed">
+        <Year>2018</Year>
+        <Month>12</Month>
+        <Day>7</Day>
+        <Hour>6</Hour>
+        <Minute>0</Minute>
+      </PubMedPubDate>
+      <PubMedPubDate PubStatus="medline">
+        <Year>2018</Year>
+        <Month>12</Month>
+        <Day>7</Day>
+        <Hour>6</Hour>
+        <Minute>0</Minute>
+      </PubMedPubDate>
+      <PubMedPubDate PubStatus="entrez">
+        <Year>2018</Year>
+        <Month>12</Month>
+        <Day>7</Day>
+        <Hour>6</Hour>
+        <Minute>0</Minute>
+      </PubMedPubDate>
+    </History>
+    <PublicationStatus>ppublish</PublicationStatus>
+    <ArticleIdList>
+      <ArticleId IdType="pubmed">30520918</ArticleId>
+      <ArticleId IdType="doi">10.1039/c8cp05077e</ArticleId>
+    </ArticleIdList>
+  </PubmedData>
+</PubmedArticle>

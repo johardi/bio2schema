@@ -1,0 +1,65 @@
+// Name: DrugBank XML Mapping to Schema.org
+// Version: 1.0
+// Format: JSLT (https://github.com/schibsted/jslt)
+
+// ===== VARIABLE DEFINITIONS ======
+let drugBankId = if(is-array(."drugbank-id")) ."drugbank-id"[0]."" else ."drugbank-id".""
+let drugSynonyms = if(.synonyms) [ for(flatten([.synonyms.synonym])) ."" ]
+let drugActiveIngredients = if(.salts) [ for(flatten([.salts.salt])) .name ]
+let drugPharmacology = [ "ABSORPTION: " + if(.absorption) .absorption else "N/A",
+   "METABOLISM: " + if(.metabolism) .metabolism else "N/A",
+   "ROUTE OF ELIMINATION: " + if(.route-of-elimination) .route-of-elimination else "N/A",
+   "HALF-LIFE: " + if(."half-life") ."half-life" else "N/A",
+   "CLEARANCE: " + if(.clearance) .clearance else "N/A",
+   "VOLUME OF DISTRIBUTION: " + if(."volume-of-distribution") ."volume-of-distribution" else "N/A",
+   "AFFECTED ORGANISMS: " + if(."affected-organisms") join(flatten([."affected-organisms"."affected-organism"]), "; ") else "N/A",
+   "PHARMACODYNAMICS: " + if(.pharmacodynamics) .pharmacodynamics else "N/A" ]
+let drugProprietaryNames = if(."international-brands") [ for(flatten([."international-brands"."international-brand"])) .name ]
+let drugFoodWarnings = if(."food-interactions") flatten([."food-interactions"."food-interaction"])
+let drugInteractions = if(."drug-interactions") flatten([."drug-interactions"."drug-interaction"])
+let drugStudies = if(."general-references") flatten([."general-references".articles.article])
+let drugExternalLinks = if(."external-links") flatten([."external-links"."external-link"])
+
+// ===== MAPPING DEFINITION ========
+{
+  "@context": "http://schema.org",
+  "@type": "Drug",
+  "@id": "http://identifiers.org/drugbank/" + $drugBankId,
+  "name": .name,
+  "description": .description,
+  "alternateName": $drugSynonyms,
+  "identifier": unique([{
+     "@type": "PropertyValue",
+     "name": "CAS",
+     "value": ."cas-number"
+   }, {
+     "@type": "PropertyValue",
+     "name": "UNII",
+     "value": .unii
+   }, [ for(."external-identifiers"."external-identifier") {
+     "@type": "PropertyValue",
+     "name": .resource,
+     "value": .identifier
+   } if(.identifier) ]
+   ]),
+  "drugClass": .classification."direct-parent",
+  "activeIngredient": $drugActiveIngredients,
+  "proprietaryName": $drugProprietaryNames,
+  "clinicalPharmacology": $drugPharmacology,
+  "mechanismOfAction": ."mechanism-of-action",
+  "overdosage": .toxicity,
+  "labelDetails": if(."fda-label") "https:" + ."fda-label",
+  "foodWarning": $drugFoodWarnings,
+  "warning": .indication,
+  "interactingDrug": [ for($drugInteractions) {
+    "@type": "Drug",
+    "@id": "http://identifiers.org/drugbank/" + ."drugbank-id",
+    "name": .name,
+    "warning": .description
+  }],
+  "sameAs": [ for($drugExternalLinks) .url ],
+  "subjectOf": [ for($drugStudies) {
+    "@type": "MedicalScholarlyArticle",
+    "@id": "http://identifiers.org/pubmed/" + ."pubmed-id"
+  }]
+}

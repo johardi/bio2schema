@@ -1,0 +1,47 @@
+Configuration:
+
+  name: BioPortalServiceCallLogging
+
+  Properties:
+    Property:
+      - name: basepath
+        value: ./log
+      - name: logname
+        value: app
+
+  Appenders:
+    Console:
+      - name: stdoutAppender
+        target: SYSTEM_OUT
+        PatternLayout:
+          pattern: '%-5level [%d{dd-MMM-yyyy HH:mm:ss}] %C{1.}: %msg%n'
+        ThresholdFilter:
+          level: warn
+          onMismatch: ACCEPT
+          onMatch: DENY
+      - name: stderrAppender
+        target: SYSTEM_ERR
+        PatternLayout:
+          pattern:  '%-5level [%d{dd-MMM-yyyy HH:mm:ss}] %C{1.}: %msg%n'
+        ThresholdFilter:
+          level: warn
+          onMatch: ACCEPT
+    RollingFile:
+      name: fileAppender
+      fileName: ${basepath}/${logname}.log
+      filePattern: ${basepath}/archive/${logname}_%d{yyyyMMdd}.log.gz
+      PatternLayout:
+        pattern: '%r,%d{ISO8601},%level,%C{10},%msg%n'
+      Policies:
+        SizeBasedTriggeringPolicy:
+          size: 10 MB
+
+  Loggers:
+    root:
+      level: all
+      AppenderRef:
+        - ref: stdoutAppender
+          level: info
+        - ref: stderrAppender
+          level: warn
+        - ref: fileAppender

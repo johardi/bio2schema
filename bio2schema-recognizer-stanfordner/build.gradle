@@ -1,0 +1,5 @@
+dependencies {
+  implementation project(":bio2schema-api")
+  implementation "edu.stanford.nlp:stanford-corenlp:${stanfordCoreNLPVersion}"
+  implementation "org.slf4j:slf4j-simple:1.7.25"
+}

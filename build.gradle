@@ -1,0 +1,33 @@
+def sourceProjects() {
+  // define projects containing source code
+  return subprojects.findAll { new File(it.projectDir, 'src').exists() }
+}
+
+configure(sourceProjects()) {
+  apply plugin: 'java'
+  apply plugin: 'maven'
+
+  repositories {
+    mavenCentral()
+  }
+
+  group = "${projectGroup}"
+  version = "${projectVersion}"
+
+  sourceCompatibility = 1.11
+
+  dependencies {
+    implementation "com.google.guava:guava:${guavaVersion}"
+    implementation "org.apache.logging.log4j:log4j-api:${log4jVersion}"
+    implementation "org.apache.logging.log4j:log4j-core:${log4jVersion}"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${jacksonYamlVersion}"
+    testImplementation "junit:junit:${junitVersion}"
+    annotationProcessor "org.apache.logging.log4j:log4j-core:${log4jVersion}"
+  }
+}
+
+configurations.all {
+  resolutionStrategy {
+    force 'xml-apis:xml-apis:1.4.01'
+  }
+}

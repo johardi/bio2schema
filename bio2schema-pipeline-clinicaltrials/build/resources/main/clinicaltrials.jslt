@@ -1,0 +1,38 @@
+// ===== VARIABLE DEFINITIONS ======
+let studyName = if(.official_title) .official_title else .brief_title
+let studyDescription = if(.detailed_description.textblock) .detailed_description.textblock else .brief_summary.textblock
+let studySubjects = unique([.condition_browse.mesh_term, .intervention_browse.mesh_term])
+let studySponsors = unique([.sponsors.lead_sponsor, .sponsors.collaborator])
+let studySponsorAgencies = unique([ for($studySponsors) .agency ])
+let studyLocationInCities = unique([ for(.location) .facility.address.city ])
+let studyPublications = unique([.reference, .results_reference])
+
+// ===== MAPPING DEFINITION ======
+{
+  "@context": "http://schema.org",
+  "@type": "MedicalTrial",
+  "@id": "http://identifiers.org/clinicaltrials/" + .id_info.nct_id,
+  "name": $studyName,
+  "description": unwrap($studyDescription),
+  "status": .overall_status,
+  "phase": .phase,
+  "trialDesign": .study_design_info.intervention_model,
+  "population": unwrap(.eligibility.criteria.textblock),
+  "url": .required_header.url,
+  "studySubject": [ for($studySubjects) {
+    "@type": "MedicalEntity",
+    "name": .
+  }],
+  "sponsor": [ for($studySponsorAgencies) {
+    "@type": "Organization",
+    "name": .
+  }],
+  "studyLocation": [ for($studyLocationInCities) {
+    "@type": "City",
+    "name": .
+  }],
+  "subjectOf": [ for($studyPublications) {
+    "@type": "MedicalScholarlyArticle",
+    "@id": "http://identifiers.org/pubmed/" + .PMID
+  }]
+}

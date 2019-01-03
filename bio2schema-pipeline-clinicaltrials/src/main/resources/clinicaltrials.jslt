@@ -1,0 +1,67 @@
+// Name: ClinicalTrials.gov XML Mapping to Schema.org
+// Version: 1.0
+// Format: JSLT (https://github.com/schibsted/jslt)
+
+// ===== VARIABLE DEFINITIONS ======
+let studyName = if(.official_title) .official_title else .brief_title
+let studyDescription = if(.detailed_description.textblock) .detailed_description.textblock else .brief_summary.textblock
+let conditions = [ for(flatten([.condition])) { "name": ., "type": "Condition or disease" } ]
+let interventions = [ for(flatten([.intervention])) { "name": .intervention_name, "type": "Intervention or treatment" } ]
+let studySubjects = unique([$conditions, $interventions])
+let leadSponsor = if(.sponsors.lead_sponsor) { "name": .sponsors.lead_sponsor.agency, "type": "Lead Sponsor" }
+let collaborators = if(.sponsors.collaborator) [ for(flatten([.sponsors.collaborator])) { "name": .agency, "type": "Collaborator" } ]
+let studySponsors = unique([$leadSponsor, $collaborators])
+let studyLocationInCities = [ for(unique([.location]))
+    if(.facility.address.state) .facility.address.city + ", " + .facility.address.state
+    else .facility.address.city + ", " + .facility.address.country ]
+let studyPublications = unique([.reference, .results_reference])
+
+// ===== MAPPING DEFINITION ========
+{
+  "@context": "http://schema.org",
+  "@type": "MedicalTrial",
+  "@id": "http://identifiers.org/clinicaltrials/" + .id_info.nct_id,
+  "identifier": unique([{
+    "@type": "PropertyValue",
+    "name": "NCT",
+    "value": .id_info.nct_id
+  }, if(.id_info.nct_alias) {
+    "@type": "PropertyValue",
+    "name": "NCT Alias",
+    "value": .id_info.nct_alias
+  }, if(.id_info.org_study_id) {
+    "@type": "PropertyValue",
+    "name": "Other",
+    "value": .id_info.org_study_id
+  }, if(.id_info.secondary_id) {
+    "@type": "PropertyValue",
+    "name": "Other",
+    "value": .id_info.secondary_id
+  }]),
+  "name": $studyName,
+  "description": unwrap($studyDescription),
+  "status": .overall_status,
+  "phase": .phase,
+  "trialDesign": .study_design_info.intervention_model,
+  "population": unwrap(.eligibility.criteria.textblock),
+  "url": .required_header.url,
+  "studySubject": [ for($studySubjects) {
+    "@type": "MedicalEntity",
+    "name": .name,
+    "additionalType": .type
+  }],
+  "sponsor": [ for($studySponsors) {
+    "@type": "Organization",
+    "name": .name,
+    "additionalType": .type
+  }],
+  "studyLocation": [ for($studyLocationInCities) {
+    "@type": "City",
+    "name": .
+  }],
+  "subjectOf": [ for($studyPublications) {
+    "@type": "MedicalScholarlyArticle",
+    "@id": "http://identifiers.org/pubmed/" + .PMID,
+    "name": split(.citation, "\\. ")[1]
+  } if(.PMID)]
+}

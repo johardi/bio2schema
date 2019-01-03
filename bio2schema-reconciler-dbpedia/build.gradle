@@ -1,0 +1,4 @@
+dependencies {
+  implementation project(":bio2schema-api")
+  implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
+}

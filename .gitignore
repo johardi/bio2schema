@@ -1,0 +1,35 @@
+*.class
+
+# Package Files
+*.jar
+*.war
+*.ear
+
+# Virtual machine crash logs
+hs_err_pid*
+
+# Logs
+log/
+
+### Eclipse ###
+.settings
+.classpath
+.project
+bin/
+
+### Gradle ###
+.gradle
+!gradle-wrapper.jar
+/build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
+!gradle-wrapper.jar
+
+# Cache of project
+.gradletasknamecache
+
+### MacOS ###
+.DS_Store

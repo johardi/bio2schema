@@ -1,0 +1,8 @@
+dependencies {
+  implementation project(":bio2schema-api")
+  implementation project(":bio2schema-recognizer-stanfordner")
+  implementation project(":bio2schema-reconciler-bioportal")
+  implementation project(":bio2schema-reconciler-drugbank")
+  implementation project(":bio2schema-reconciler-dbpedia")
+  implementation "com.schibsted.spt.data:jslt:${jsltVersion}"
+}

@@ -1,0 +1,64 @@
+// ===== VARIABLE DEFINITIONS ======
+let publicationTypeList = unique([.MedlineCitation.Article.PublicationTypeList.PublicationType])
+let abstractText = unique([.MedlineCitation.Article.Abstract.AbstractText])
+let articleKeywordList = unique([.MedlineCitation.KeywordList.Keyword])
+let elocations = unique([.MedlineCitation.Article.ELocationID])
+let articleDoi = { for($elocations) "value": ."" if(.EIdType=="doi") }
+let datePublished = if (.MedlineCitation.Article.ArticleDate)
+   .MedlineCitation.Article.ArticleDate.Year +
+   "-" + .MedlineCitation.Article.ArticleDate.Month +
+   "-" + .MedlineCitation.Article.ArticleDate.Day
+let authors = unique([.MedlineCitation.Article.AuthorList.Author])
+let grantList = unique([.MedlineCitation.Article.GrantList.Grant])
+let agencies = unique([ for($grantList) .Agency ])
+let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
+
+// ===== MAPPING DEFINITION ======
+{
+  "@context": "http://schema.org",
+  "@type": "MedicalScholarlyArticle",
+  "@id": "http://identifiers.org/pubmed/" + .MedlineCitation.PMID."",
+  "publicationType": [ for($publicationTypeList) ."" ],
+  "name": .MedlineCitation.Article.ArticleTitle,
+  "description": [ for($abstractText) if(is-object(.)) .Label + ": " + ."" else . ],
+  "keywords": [ for($articleKeywordList) ."" ],
+  "pagination": .MedlineCitation.Article.Pagination.MedlinePgn,
+  "url": "http://doi.org/" + $articleDoi.value,
+  "datePublished": $datePublished,
+  "inLanguage": .MedlineCitation.Article.Language,
+  "author": [ for($authors) {
+    "@type": "Person",
+    "givenName": .ForeName,
+    "familyName": .LastName,
+    "affiliation": if(.AffiliationInfo) {
+      "@type": "Organization",
+      "name": top([.AffiliationInfo]).Affiliation
+    }
+  }],
+  "isPartOf": if(.MedlineCitation.Article.Journal) {
+    "@type": "Periodical",
+    "name": .MedlineCitation.Article.Journal.Title,
+    "alternateName": .MedlineCitation.Article.Journal.ISOAbbreviation,
+    "issn": .MedlineCitation.Article.Journal.ISSN."",
+    "hasPart": if(.MedlineCitation.Article.Journal.JournalIssue) [{
+      "@type": "PublicationIssue",
+      "issueNumber": .MedlineCitation.Article.Journal.JournalIssue.Issue
+    }, {
+      "@type": "PublicationVolume",
+      "volumeNumber": .MedlineCitation.Article.Journal.JournalIssue.Volume
+    }]
+  },
+  "funder": [ for($agencies) {
+    "@type": "Organization",
+    "name": .
+  }],
+  "about": [ for($meshHeadings) {
+    "@type": "MedicalEntity",
+    "name": .DescriptorName."",
+    "code": {
+      "@type": "MedicalCode",
+      "codeValue": .DescriptorName.UI,
+      "codingSystem": "MeSH"
+    }
+  }]
+}
