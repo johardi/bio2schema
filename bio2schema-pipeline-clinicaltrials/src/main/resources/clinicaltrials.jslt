@@ -11,9 +11,10 @@ let studySubjects = unique([$conditions, $interventions])
 let leadSponsor = if(.sponsors.lead_sponsor) { "name": .sponsors.lead_sponsor.agency, "type": "Lead Sponsor" }
 let collaborators = if(.sponsors.collaborator) [ for(flatten([.sponsors.collaborator])) { "name": .agency, "type": "Collaborator" } ]
 let studySponsors = unique([$leadSponsor, $collaborators])
-let studyLocationInCities = [ for(unique([.location]))
+let studyLocations = flatten([.location])
+let studyLocationInCities = unique([ for($studyLocations)
     if(.facility.address.state) .facility.address.city + ", " + .facility.address.state
-    else .facility.address.city + ", " + .facility.address.country ]
+    else .facility.address.city + ", " + .facility.address.country ])
 let studyPublications = unique([.reference, .results_reference])
 
 // ===== MAPPING DEFINITION ========
