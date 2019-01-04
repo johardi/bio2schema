@@ -61,5 +61,5 @@ let drugExternalLinks = if(."external-links") flatten([."external-links"."extern
   "subjectOf": [ for($drugStudies) {
     "@type": "MedicalScholarlyArticle",
     "@id": "http://identifiers.org/pubmed/" + ."pubmed-id"
-  }]
+  } if(."pubmed-id")]
 }
