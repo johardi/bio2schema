@@ -8,7 +8,6 @@ import org.bio2schema.api.pipeline.Processor;
 import org.bio2schema.util.JacksonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 
 public final class StudyPopulationProcessor implements Processor {
 
@@ -20,54 +19,63 @@ public final class StudyPopulationProcessor implements Processor {
     checkIfObjectNode(input);
     JsonNode studyPopulation = input.path(PROPERTY_POPULATION);
     if (studyPopulation.isTextual()) {
-      ArrayNode inclusionExclusion = processInclusionExclusionCriteria((TextNode) studyPopulation);
-      if (notEmpty(inclusionExclusion)) {
-        set(input, with(PROPERTY_POPULATION, inclusionExclusion));
-      }
+      JsonNode inclusionExclusion = processInclusionExclusionCriteria(studyPopulation);
+      set(input, with(PROPERTY_POPULATION, inclusionExclusion));
     }
     return input;
   }
 
-  private ArrayNode processInclusionExclusionCriteria(TextNode studyPopulation) {
-    ArrayNode populationList = JacksonUtils.createEmptyArrayNode();
-    String populationParagraph = studyPopulation.asText();
-    if (hasInclusionExclusionStructure(populationParagraph)) {
-      extractAndAddInclusionExclusionCriteria(populationParagraph, populationList);
-    } else if (hasInclusionOnly(populationParagraph)) {
-      extractAndAddInclusionCriteriaOnly(populationParagraph, populationList);
-    } else if (hasExclusionOnly(populationParagraph)) {
-      extractAndAddExclusionCriteriaOnly(populationParagraph, populationList);
+  private JsonNode processInclusionExclusionCriteria(JsonNode studyPopulation) {
+    JsonNode processingResult = studyPopulation;
+    try {
+      String populationParagraph = studyPopulation.asText();
+      if (hasInclusionExclusionStructure(populationParagraph)) {
+        processingResult = extractAndAddInclusionExclusionCriteria(populationParagraph);
+      } else if (hasInclusionOnly(populationParagraph)) {
+        processingResult = extractAndAddInclusionCriteriaOnly(populationParagraph);
+      } else if (hasExclusionOnly(populationParagraph)) {
+        processingResult = extractAndAddExclusionCriteriaOnly(populationParagraph);
+      }
+    } catch (Exception e) {
+      // XXX: We ignore any parsing error and the met return the original study
+      // population text instead
     }
-    return populationList;
+    return processingResult;
   }
 
-  private void extractAndAddInclusionExclusionCriteria(String paragraph, ArrayNode collector) {
+  private ArrayNode extractAndAddInclusionExclusionCriteria(String paragraph) {
     String inclusionCriteria = paragraph.substring(
         StringUtils.indexOfIgnoreCase(paragraph, INCLUSION_CRITERIA),
         StringUtils.indexOfIgnoreCase(paragraph, EXCLUSION_CRITERIA));
     String exclusionCriteria = paragraph.substring(
         StringUtils.indexOfIgnoreCase(paragraph, EXCLUSION_CRITERIA),
         paragraph.length());
-    collector.add(inclusionCriteria.trim());
-    collector.add(exclusionCriteria.trim());
+    ArrayNode populationList = JacksonUtils.createEmptyArrayNode();
+    populationList.add(inclusionCriteria.trim());
+    populationList.add(exclusionCriteria.trim());
+    return populationList;
   }
 
-  private void extractAndAddInclusionCriteriaOnly(String paragraph, ArrayNode collector) {
+  private ArrayNode extractAndAddInclusionCriteriaOnly(String paragraph) {
     String inclusionCriteria = paragraph.substring(
         StringUtils.indexOfIgnoreCase(paragraph, INCLUSION_CRITERIA),
         paragraph.length());
     String exclusionCriteria = "";
-    collector.add(inclusionCriteria.trim());
-    collector.add(exclusionCriteria);
+    ArrayNode populationList = JacksonUtils.createEmptyArrayNode();
+    populationList.add(inclusionCriteria.trim());
+    populationList.add(exclusionCriteria);
+    return populationList;
   }
 
-  private void extractAndAddExclusionCriteriaOnly(String paragraph, ArrayNode collector) {
+  private ArrayNode extractAndAddExclusionCriteriaOnly(String paragraph) {
     String inclusionCriteria = "";
     String exclusionCriteria = paragraph.substring(
         StringUtils.indexOfIgnoreCase(paragraph, EXCLUSION_CRITERIA),
         paragraph.length());
-    collector.add(inclusionCriteria);
-    collector.add(exclusionCriteria.trim());
+    ArrayNode populationList = JacksonUtils.createEmptyArrayNode();
+    populationList.add(inclusionCriteria);
+    populationList.add(exclusionCriteria.trim());
+    return populationList;
   }
 
   private static boolean hasInclusionExclusionStructure(String population) {
@@ -83,9 +91,5 @@ public final class StudyPopulationProcessor implements Processor {
   private static boolean hasExclusionOnly(String population) {
     return !StringUtils.containsIgnoreCase(population, INCLUSION_CRITERIA)
         && StringUtils.containsIgnoreCase(population, EXCLUSION_CRITERIA);
-  }
-
-  private static boolean notEmpty(ArrayNode arrayNode) {
-    return arrayNode.size() != 0;
   }
 }
