@@ -107,7 +107,7 @@ public class Application {
       Path outputFilePath = Paths.get(outputDirPath.toString(), outputFileName);
       writeOutput(outputFilePath, output);
     } catch (Exception e) {
-      logger.error(e.getMessage());
+      logger.error("Error processing {}", inputFilePath.getFileName(), e);
       success = false;
     }
     return success;
