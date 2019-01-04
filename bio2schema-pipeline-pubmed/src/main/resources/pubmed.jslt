@@ -10,9 +10,6 @@ let abstractText = .MedlineCitation.Article.Abstract.AbstractText
 let articleDescription = if(is-array($abstractText)) join([ for($abstractText) if(is-object(.)) ."" else . ], " ") else $abstractText
 let articleAnnotatedDescriptions = if(is-array($abstractText)) [ for($abstractText) if(is-object(.)) .Label + ": " + ."" else . ]
 let articleKeywords = [ for(unique([.MedlineCitation.KeywordList.Keyword])) ."" ]
-let pagination = split(.MedlineCitation.Article.Pagination.MedlinePgn, "-")
-let articlePageStart = if(is-array($pagination)) number($pagination[0]) else $pagination
-let articlePageEnd = if(is-array($pagination)) number($pagination[1])
 let articlePagination = .MedlineCitation.Article.Pagination.MedlinePgn
 let elocations = unique([.MedlineCitation.Article.ELocationID])
 let articleDoi = { for($elocations) "url": "http://doi.org/" + ."" if(.EIdType=="doi") }
@@ -41,8 +38,6 @@ let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
   "description": $articleDescription,
   "disambiguatingDescription": $articleAnnotatedDescriptions,
   "keywords": $articleKeywords,
-  "pageStart": $articlePageStart,
-  "pageEnd": if($articlePageEnd < $articlePageStart) $articlePageStart + $articlePageEnd - 1 else $articlePageEnd,
   "pagination": $articlePagination,
   "url": $articleDoi.url,
   "datePublished": $articlePublicationDate,
@@ -62,14 +57,14 @@ let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
   }],
   "isPartOf": if(.MedlineCitation.Article.Journal) {
     "@type": "PublicationIssue",
-    "issueNumber": number(.MedlineCitation.Article.Journal.JournalIssue.Issue),
-    "datePublished": number(.MedlineCitation.Article.Journal.JournalIssue.PubDate.Year),
+    "issueNumber": .MedlineCitation.Article.Journal.JournalIssue.Issue,
+    "datePublished": .MedlineCitation.Article.Journal.JournalIssue.PubDate.Year,
     "isPartOf": {
       "@type": ["Periodical" , "PublicationVolume"],
       "name": .MedlineCitation.Article.Journal.Title,
       "alternateName": .MedlineCitation.Article.Journal.ISOAbbreviation,
       "issn": .MedlineCitation.Article.Journal.ISSN."",
-      "volumeNumber": number(.MedlineCitation.Article.Journal.JournalIssue.Volume)
+      "volumeNumber": .MedlineCitation.Article.Journal.JournalIssue.Volume
     }
   },
   "funder": [ for($agencies) {
