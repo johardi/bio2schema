@@ -43,8 +43,8 @@ let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
   "datePublished": $articlePublicationDate,
   "inLanguage": .MedlineCitation.Article.Language,
   "author": [ for($authors) {
-    "@id": if(.Identifier.Source=="ORCID") "http://identifiers.org/orcid/"
-        + capture(.Identifier."", "http://orcid.org/(?<value>.+)$").value,
+    "@id": if(.Identifier.Source=="ORCID")
+        "http://identifiers.org/orcid/" + capture(.Identifier."", "(?<value>\\d{4}-\\d{4}-\\d{4}-\\d{4})").value,
     "@type": "Person",
     "givenName": .ForeName,
     "familyName": .LastName,
@@ -53,7 +53,8 @@ let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
       "name": if(is-array(.AffiliationInfo)) .AffiliationInfo[0].Affiliation
               else .AffiliationInfo.Affiliation
     },
-    "url": if (.Identifier.Source=="ORCID") .Identifier.""
+    "url": if (.Identifier.Source=="ORCID")
+        "https://orcid.org/" + capture(.Identifier."", "(?<value>\\d{4}-\\d{4}-\\d{4}-\\d{4})").value
   }],
   "isPartOf": if(.MedlineCitation.Article.Journal) {
     "@type": "PublicationIssue",
