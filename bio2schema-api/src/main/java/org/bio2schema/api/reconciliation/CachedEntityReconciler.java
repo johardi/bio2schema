@@ -11,7 +11,7 @@ public abstract class CachedEntityReconciler<T extends GenericEntity>
     extends StandardEntityReconciler<T> {
 
   private final ConcurrentMap<String, Optional<T>> cachedDatabase =
-      CacheBuilder.newBuilder().maximumSize(100L).<String, Optional<T>>build().asMap();
+      CacheBuilder.newBuilder().maximumSize(200L).<String, Optional<T>>build().asMap();
 
   public CachedEntityReconciler(@Nonnull String serviceName, @Nonnull Database database) {
     super(serviceName, database);
