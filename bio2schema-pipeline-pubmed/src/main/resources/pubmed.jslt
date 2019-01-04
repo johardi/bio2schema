@@ -20,7 +20,7 @@ let articlePublicationDate = if (.MedlineCitation.Article.ArticleDate)
 let authors = unique([.MedlineCitation.Article.AuthorList.Author])
 let grantList = unique([.MedlineCitation.Article.GrantList.Grant])
 let agencies = unique([ for($grantList) .Agency ])
-let articleCitations = flatten([.PubmedData.ReferenceList.Reference])
+let articleCitations = unique([.PubmedData.ReferenceList.Reference])
 let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
 
 // ===== MAPPING DEFINITION ========
