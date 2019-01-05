@@ -10,7 +10,6 @@ let abstractText = .MedlineCitation.Article.Abstract.AbstractText
 let articleDescription = if(is-array($abstractText)) join([ for($abstractText) if(is-object(.)) ."" else . ], " ") else $abstractText
 let articleAnnotatedDescriptions = if(is-array($abstractText)) [ for($abstractText) if(is-object(.)) .Label + ": " + ."" else . ]
 let articleKeywords = [ for(unique([.MedlineCitation.KeywordList.Keyword])) ."" ]
-let articlePagination = .MedlineCitation.Article.Pagination.MedlinePgn
 let elocations = unique([.MedlineCitation.Article.ELocationID])
 let articleDoi = { for($elocations) "url": "http://doi.org/" + ."" if(.EIdType=="doi") }
 let articlePublicationDate = if (.MedlineCitation.Article.ArticleDate)
@@ -38,7 +37,7 @@ let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
   "description": $articleDescription,
   "disambiguatingDescription": $articleAnnotatedDescriptions,
   "keywords": $articleKeywords,
-  "pagination": $articlePagination,
+  "pagination": .MedlineCitation.Article.Pagination.MedlinePgn,
   "url": $articleDoi.url,
   "datePublished": $articlePublicationDate,
   "inLanguage": .MedlineCitation.Article.Language,
