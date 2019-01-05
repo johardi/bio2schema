@@ -1,8 +1,8 @@
-# An Entity Reconciliation using BioPortal
+# Entity Reconciliation via BioPortal
 
-A wrapper class to work with the [BioPortal](https://bioportal.bioontology.org/) Term Search REST call. See the detailed documentation [here](http://data.bioontology.org/documentation#nav_search).
+A wrapper class that will handle the BioPortal Search service. Please refer to the [API documentation](http://data.bioontology.org/documentation#nav_search) for a more detailed description.
 
-This feature requires an API key from BioPortal which you can obtain by signing up for free. Afterward, add the key into your system environment:
+This module requires an API key from BioPortal to enable the search service. Register this key in your computer environment as a `BIOPORTAL_APIKEY` variable once you obtain it from the BioPortal site.
 
 ```
 export BIOPORTAL_APIKEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx

@@ -1,3 +1,3 @@
-# An Entity Reconciliation using DBpedia
+# Entity Reconciliation via DBpedia
 
-A wrapper class to work with the [DBpedia](https://dbpedia.org/) Lookup service. See the detailed documentation [here](https://github.com/dbpedia/lookup).
+A wrapper class that will handle the DBpedia Lookup service. Please refer to the [API documentation](https://github.com/dbpedia/lookup) for a more detailed description.
