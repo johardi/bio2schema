@@ -15,6 +15,8 @@ let drugPharmacology = [ "ABSORPTION: " + if(.absorption) .absorption else "N/A"
    "AFFECTED ORGANISMS: " + if(."affected-organisms") join(flatten([."affected-organisms"."affected-organism"]), "; ") else "N/A",
    "PHARMACODYNAMICS: " + if(.pharmacodynamics) .pharmacodynamics else "N/A" ]
 let drugProprietaryNames = if(."international-brands") [ for(flatten([."international-brands"."international-brand"])) .name ]
+let drugLabelDetails = if(."fda-label") if(contains("https:\/\/", ."fda-label")) ."fda-label"
+    else if(contains("\/\/", ."fda-label")) "https:" + ."fda-label" else "https://" + ."fda-label"
 let drugFoodWarnings = if(."food-interactions") flatten([."food-interactions"."food-interaction"])
 let drugInteractions = if(."drug-interactions") flatten([."drug-interactions"."drug-interaction"])
 let drugStudies = if(."general-references") flatten([."general-references".articles.article])
@@ -48,7 +50,7 @@ let drugExternalLinks = if(."external-links") flatten([."external-links"."extern
   "clinicalPharmacology": $drugPharmacology,
   "mechanismOfAction": ."mechanism-of-action",
   "overdosage": .toxicity,
-  "labelDetails": if(."fda-label") "https:" + ."fda-label",
+  "labelDetails": $drugLabelDetails,
   "foodWarning": $drugFoodWarnings,
   "warning": .indication,
   "interactingDrug": [ for($drugInteractions) {
