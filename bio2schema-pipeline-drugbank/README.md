@@ -2,7 +2,7 @@
 
 This folder contains a data transformation pipeline that will transform [DrugBank](https://www.drugbank.ca) data into Schema.org's structure.
 
-The pipeline will transform the format from XML to JSON-LD following the [Drug](https://health-lifesci.schema.org/Drug) specification. Additionally, the pipeline includes some data reconciliations that will verify the value strings against a known knowledge base (e.g., data dictionary, public registry, ontology, etc.) and retrieve the identifier and standard naming. The goal for this extra step is to make sure that the resulting data is linkable to other sources for a richer data querying.
+The pipeline will transform the original data format from XML to JSON-LD following the [Drug](https://health-lifesci.schema.org/Drug) specification. Additionally, the pipeline will reconcile names with known LOD databases (e.g., DBpedia and BioPortal) to find their persistent identifier and preferred name so that it is possible to link the information with other well-known resources.
 
 ## Data Mapping
 
@@ -16,7 +16,7 @@ The table below shows the data mapping used to transform DrugBank XML data to Sc
 | Schema.org Data Element | DrugBank Data Element | Type | Cardinality | Notes
 --- | --- | :---: | :---: | ---
 `identifier` | `/cas-number`,<br/>`/unii` | [PropertyValue](https://schema.org/PropertyValue) | * |
-`name` | `/name` | String | 1 | Entity reconciliation was used to get the medical code via [BioPortal service](http://data.bioontology.org/documentation#nav_search)
+`name` | `/name` | String | 1 | An entity reconciler will be used to get the medical code via [BioPortal search service](http://data.bioontology.org/documentation#nav_search)
 `description` | `/description` | String | 1 |
 `alternateName` | `/synonyms/synonym` | String | * |
 `drugClass` | `/classification/direct-parent` | String | 1 |
@@ -28,15 +28,15 @@ The table below shows the data mapping used to transform DrugBank XML data to Sc
 `labelDetails` | `/fda-label` | URL | 1 |
 `foodWarning` | `/food-interactions/food-interaction` | String | * |
 `warning` | `/indication` | String | 1 |
-`interactingDrug` | `/drug-interactions/drug-interaction` | [Drug](https://health-lifesci.schema.org/Drug) | * | Linkable to DrugBank data set itself
+`interactingDrug` | `/drug-interactions/drug-interaction` | [Drug](https://health-lifesci.schema.org/Drug) | * | A persistent identifier will be included to refer to an existing resource
 `sameAs` | `/external-links/external-link` | URL | * |
-`subjectOf` | `/general-references/articles` | [MedicalScholarlyArticle](https://health-lifesci.schema.org/MedicalScholarlyArticle) | * | Linkable to PubMed data set
+`subjectOf` | `/general-references/articles` | [MedicalScholarlyArticle](https://health-lifesci.schema.org/MedicalScholarlyArticle) | * | A persistent identifier will be included to refer to an existing resource
 
 We implemented the data mapping using the [JSLT](https://github.com/schibsted/jslt) syntax and you can find the detail in _./src/main/resources/drugbank.jslt_ file.
 
 ## Example Output
 
-The example below shows the result of executing the pipeline against a data record for [Mafenide](https://www.drugbank.ca/drugs/DB06795)) in the DrugBank site.
+The example below shows the result of executing the pipeline against a data record for [Mafenide](https://www.drugbank.ca/drugs/DB06795) in the DrugBank site.
 ```
 {
   "@context": "http://schema.org",

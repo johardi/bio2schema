@@ -2,7 +2,7 @@
 
 This folder contains a data transformation pipeline that will transform [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/) data into Schema.org's structure.
 
-The pipeline will transform the format from XML to JSON-LD following the [MedicalScholarlyArticle](https://health-lifesci.schema.org/MedicalScholarlyArticle) specification. Additionally, the pipeline includes some data reconciliations that will verify the value strings against a known knowledge base (e.g., data dictionary, public registry, ontology, etc.) and retrieve the identifier and standard naming. The goal for this extra step is to make sure that the resulting data is linkable to other sources for a richer data querying.
+The pipeline will transform the original data format from XML to JSON-LD following the [MedicalScholarlyArticle](https://health-lifesci.schema.org/MedicalScholarlyArticle) specification. Additionally, the pipeline will reconcile names with known LOD databases (e.g., DBpedia and BioPortal) to find their persistent identifier and preferred name so that it is possible to link the information with other well-known resources.
 
 ## Data Mapping
 
@@ -18,18 +18,18 @@ The table below shows the data mapping used to transform DrugBank XML data to Sc
 `identifier` | `/PubmedData/ArticleIdList/ArticleId` | String | * |
 `name` | `/MedlineCitation/Article/ArticleTitle` | String | 1 |
 `description` | `/MedlineCitation/Article/Abstract/AbstractText` | String | 1 |
-`disambiguatingDescription` | `/MedlineCitation/Article/Abstract/AbstractText` | String | * | For some publications, the description is broken down into "OBJECTIVES", "METHODS", "RESULTS", and "CONCLUSIONS"
+`disambiguatingDescription` | `/MedlineCitation/Article/Abstract/AbstractText` | String | * | For some publications, the description will be broken down into different parts, e.g., "OBJECTIVES", "METHODS", "RESULTS", and "CONCLUSIONS"
 `publicationType` | `/MedlineCitation/Article/PublicationTypeList` | String | * |
 `keywords` | `/MedlineCitation/KeywordList` | String | * |
 `pagination` | `/MedlineCitation/Article/Pagination/MedlinePgn` | String | 1 |
 `url` | `/MedlineCitation/Article/ELocationID` | URL | 1 |
 `datePublished` | `/MedlineCitation/Article/ArticleDate` | Date | 1 |
 `inLanguage` | `/MedlineCitation/Article/Language` | String | 1 |
-`author` | `/MedlineCitation/Article/AuthorList` | [Person](https://schema.org/Person) | * | Entity reconciliation was used to get the affiliation's entity id via [Dbpedia service](https://wiki.dbpedia.org/lookup) and we extract the author's ORCID, if present
-`isPartOf` | `/MedlineCitation/Article/Journal` | [PublicationIssue](https://schema.org/PublicationIssue) | 1 | Additionally, the [Periodical](https://schema.org/Periodical) and [PublicationVolume](https://schema.org/PublicationVolume) types are used to provide more detailed information
-`funder` | `/MedlineCitation/Article/GrantList/Grant/Agency` | [Organization](https://schema.org/Organization) | * | Entity reconciliation was used to get the entity id via [Dbpedia service](https://wiki.dbpedia.org/lookup)
-`citation` | `/PubmedData/ReferenceList` | [MedicalScholarlyArticle](https://health-lifesci.schema.org/MedicalScholarlyArticle) | * | Linkable to PubMed data set itself
-`about` | `/MedlineCitation/MeshHeadingList` | [MedicalEntity](https://health-lifesci.schema.org/MedicalEntity) | * | Entity reconciliation was used to get the medical code via [BioPortal service](http://data.bioontology.org/documentation#nav_search)
+`author` | `/MedlineCitation/Article/AuthorList` | [Person](https://schema.org/Person) | * | An entity reconciler will be used to get the affiliation's entity id via [Dbpedia lookup service](https://wiki.dbpedia.org/lookup). The author's ORCID will also be extracted, if present
+`isPartOf` | `/MedlineCitation/Article/Journal` | [PublicationIssue](https://schema.org/PublicationIssue) | 1 | The [Periodical](https://schema.org/Periodical) and [PublicationVolume](https://schema.org/PublicationVolume) types will also be added to provide more complete information
+`funder` | `/MedlineCitation/Article/GrantList/Grant/Agency` | [Organization](https://schema.org/Organization) | * | An entity reconciler will be used to get the entity id via [Dbpedia lookup service](https://wiki.dbpedia.org/lookup)
+`citation` | `/PubmedData/ReferenceList` | [MedicalScholarlyArticle](https://health-lifesci.schema.org/MedicalScholarlyArticle) | * | A persistent identifier will be included to refer to an existing resource
+`about` | `/MedlineCitation/MeshHeadingList` | [MedicalEntity](https://health-lifesci.schema.org/MedicalEntity) | * | An entity reconciler will be used to get the medical code via [BioPortal search service](http://data.bioontology.org/documentation#nav_search)
 
 We implemented the data mapping using the [JSLT](https://github.com/schibsted/jslt) syntax and you can find the detail in _./src/main/resources/pubmed.jslt_ file.
 

@@ -2,7 +2,7 @@
 
 This folder contains a data transformation pipeline that will transform [ClinicalTrials.gov](https://clinicaltrials.gov/) data into Schema.org's structure.
 
-The pipeline will transform the format from XML to JSON-LD following the [MedicalTrial](https://health-lifesci.schema.org/MedicalTrial) specification. Additionally, the pipeline includes some data reconciliations that will verify the value strings against a known knowledge base (e.g., data dictionary, public registry, ontology, etc.) and retrieve the identifier and standard naming. The goal for this extra step is to make sure that the resulting data is linkable to other sources for a richer data querying.
+The pipeline will transform the original data format from XML to JSON-LD following the [MedicalTrial](https://health-lifesci.schema.org/MedicalTrial) specification. Additionally, the pipeline will reconcile names with known LOD databases (e.g., DBpedia and BioPortal) to find their persistent identifier and preferred name so that it is possible to link the information with other well-known resources.
 
 ## Data Mapping
 
@@ -16,17 +16,17 @@ The table below shows the data mapping used to transform ClinicalTrials.gov XML 
 | Schema.org Data Element | ClinicalTrials.gov Data Element | Type | Cardinality | Notes
 --- | --- | :---: | :---: | ---
 `identifier` | `/id_info/nct_id`,<br/>`/id_info/nct_alias`,<br/>`/id_info/org_study_id`,<br/>`/id_info/secondary_id` | [PropertyValue](https://schema.org/PropertyValue) | * |
-`name` | `/official_title` | String | 1 | `/brief_title` (Alternative)
-`description` | `/detailed_description/textblock` | String | 1 | `/brief_summary/textblock` (Alternative)
+`name` | `/official_title` | String | 1 | `/brief_title` (as an alternative source)
+`description` | `/detailed_description/textblock` | String | 1 | `/brief_summary/textblock` (as an alternative source)
 `status` | `/overall_status` | String | 1 |
 `phase` | `/phase` | String | 1 |
 `trialDesign` | `/study_design_info/intervention_model` | String | 1 |
-`population` | `/eligibility/criteria/textblock` | String | 1..* | The pipeline will try to separate the inclusion and exclusion criteria
+`population` | `/eligibility/criteria/textblock` | String | 1..* | The pipeline will parse the inclusion and exclusion criteria and separate them, if possible.
 `url` | `/required_header/url` | URL | 1 |
-`studySubject` | `/condition`,<br/>`/intervention` | [MedicalEntity](https://health-lifesci.schema.org/MedicalEntity) | * | Entity reconciliation was used to get the medical code via [BioPortal service](http://data.bioontology.org/documentation#nav_search)
-`sponsor` | `/sponsors/lead_sponsor`,<br/>`/sponsors/collaborator` | [Organization](https://schema.org/Organization) | * | Entity reconciliation was used to get the entity id via [Dbpedia service](https://wiki.dbpedia.org/lookup)
-`studyLocation` | `/facility/address/city` | [City](https://schema.org/City) | * | Entity reconciliation was used to get the entity id via [Dbpedia service](https://wiki.dbpedia.org/lookup)
-`subjectOf` | `/reference`,<br/>`/results_reference` | [MedicalScholarlyArticle](https://health-lifesci.schema.org/MedicalScholarlyArticle) | * | Linkable to PubMed data set
+`studySubject` | `/condition`,<br/>`/intervention` | [MedicalEntity](https://health-lifesci.schema.org/MedicalEntity) | * | An entity reconciler will be used to get the medical code via [BioPortal search service](http://data.bioontology.org/documentation#nav_search)
+`sponsor` | `/sponsors/lead_sponsor`,<br/>`/sponsors/collaborator` | [Organization](https://schema.org/Organization) | * | An entity reconciler will be used to get the entity id via [DBpedia lookup service](https://wiki.dbpedia.org/lookup)
+`studyLocation` | `/facility/address/city` | [City](https://schema.org/City) | * | An entity reconciler will be used to get the entity id via [DBpedia lookup service](https://wiki.dbpedia.org/lookup)
+`subjectOf` | `/reference`,<br/>`/results_reference` | [MedicalScholarlyArticle](https://health-lifesci.schema.org/MedicalScholarlyArticle) | * | A persistent identifier will be included to refer to an existing resource
 
 We implemented the data mapping using the [JSLT](https://github.com/schibsted/jslt) syntax and you can find the detail in _./src/main/resources/clinicaltrials.jslt_ file.
 
