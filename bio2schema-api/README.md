@@ -3,7 +3,7 @@
 ## Pipeline API
 
 A Bio2Schema pipeline consists of:
-* One data transformation implementation
+* One data transformation implementation, and
 * Zero or many data processing implementations
 
 Illustration:
@@ -11,7 +11,7 @@ Illustration:
 Input --> [Data Transformation] --> [Data Processor] --> ... --> [Data Processor] --> Output
 ```
 
-An implementation of `PipelineFactory` is required to customize the data transformation pipeline that you want to construct. A code snippet below shows an example of constructing a pipeline for ClinicalTrials.gov data _(note: some details were hidden for brevity)_.
+The `PipelineFactory` interface is used to construct the pipeline instance. A code snippet below shows an example of constructing a pipeline for ClinicalTrials.gov data _(note: some details were hidden for brevity)_.
 
 ```
 public final class ClinicalTrialsPipelineFactory implements PipelineFactory {
@@ -41,12 +41,14 @@ public final class ClinicalTrialsPipelineFactory implements PipelineFactory {
 
 ## Reconciliation API
 
-The implementation for an entity reconciler is based on the `EntityReconciler` interface and it can be useful as a module for the data processor. The API provides two abstract classes:
+The `EntityReconciler` interface defines the basic method for implementing an entity reconciler service. The main function of the method is to find the preferred form of a given string name so that it can be linked to other known resources. Sources used for such reconciliation include name registries, data thesauri, linked-data databases, and ontologies. Selection of the source depends on the trustworthiness of the organization responsible, subject matter and richness of the information.
 
-* `StandardEntityReconciler`: A generic skeleton for implementing an entity reconciliation module.
-* `CachedEntityReconciler`: An cache-based module implementation for resource efficiency; recommended when the module relies on a remote REST call.
+The API provides two abstract classes:
+
+* `StandardEntityReconciler`: A generic code template for implementing an entity reconciler.
+* `CachedEntityReconciler`: An cache-based entity reconciler to improve searching performance; recommended when the implementation makes use of a remote REST service.
 
 
 ## Recognition API
 
-The implementation for an entity recongnition is based on the `EntityRecognition` interface and it can be useful as a module for the data processor.
+The `EntityRecognition` interface defines the basic method for implementing a named entity recognition (NER) service. You might want to implement the interface as a wrapper class for any existing NER libraries in the market.
