@@ -22,7 +22,7 @@ The table below shows the data mapping used to transform ClinicalTrials.gov XML 
 `phase` | `/phase` | String | 1 |
 `trialDesign` | `/study_design_info/intervention_model` | String | 1 |
 `population` | `/eligibility/criteria/textblock` | String | 1..* | The pipeline will try to separate the inclusion and exclusion criteria
-`url` | `/required_header/url` | String | 1 |
+`url` | `/required_header/url` | URL | 1 |
 `studySubject` | `/condition`,<br/>`/intervention` | [MedicalEntity](https://health-lifesci.schema.org/MedicalEntity) | * | Entity reconciliation was used to get the medical code via [BioPortal service](http://data.bioontology.org/documentation#nav_search)
 `sponsor` | `/sponsors/lead_sponsor`,<br/>`/sponsors/collaborator` | [Organization](https://schema.org/Organization) | * | Entity reconciliation was used to get the entity id via [Dbpedia service](https://wiki.dbpedia.org/lookup)
 `studyLocation` | `/facility/address/city` | [City](https://schema.org/City) | * | Entity reconciliation was used to get the entity id via [Dbpedia service](https://wiki.dbpedia.org/lookup)
