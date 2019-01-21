@@ -18,6 +18,7 @@ import org.bio2schema.reconcilers.bioportal.BioPortalSearch;
 import org.bio2schema.reconcilers.bioportal.BioPortalService;
 import org.bio2schema.reconcilers.dbpedia.DbpediaLookup;
 import org.bio2schema.reconcilers.dbpedia.DbpediaService;
+import org.bio2schema.reconcilers.dbpedia.DbpediaSimilarityLookup;
 import bio2schema.reconciler.drugbank.DrugBankDatabase;
 import bio2schema.reconciler.drugbank.DrugBankLookup;
 
@@ -42,18 +43,18 @@ public final class ClinicalTrialsPipelineFactory implements PipelineFactory {
   private DbpediaLookup setupDbpediaLookupForCity() {
     final DbpediaService dbpediaService = new DbpediaService();
     return new DbpediaLookup(dbpediaService)
-        .addFilter(TYPE_CITY)
-        .addFilter(TYPE_PLACE);
+        .filterType(TYPE_CITY)
+        .filterType(TYPE_PLACE);
   }
 
-  private DbpediaLookup setupDbpediaLookupForOrganization() {
+  private DbpediaSimilarityLookup setupDbpediaLookupForOrganization() {
     final DbpediaService dbpediaService = new DbpediaService();
-    return new DbpediaLookup(dbpediaService)
-        .addFilter(TYPE_ORGANIZATION)
-        .addFilter(TYPE_COLLEGE_OR_UNIVERSITY)
-        .addFilter(TYPE_EDUCATIONAL_ORGANIZATION)
-        .addFilter(TYPE_GOVERNMENT_ORGANIZATION)
-        .addFilter(TYPE_HOSPITAL);
+    return new DbpediaSimilarityLookup(dbpediaService)
+        .filterType(TYPE_ORGANIZATION)
+        .filterType(TYPE_COLLEGE_OR_UNIVERSITY)
+        .filterType(TYPE_EDUCATIONAL_ORGANIZATION)
+        .filterType(TYPE_GOVERNMENT_ORGANIZATION)
+        .filterType(TYPE_HOSPITAL);
   }
 
   private BioPortalSearch setupBioPortalSearch() {
