@@ -1,5 +1,6 @@
 package org.bio2schema;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -45,6 +46,10 @@ public class Application {
       logger.info("--- output-result-location ---");
       String outputLocation = args[2];
       Path outputLocationPath = Paths.get(outputLocation);
+      File outputDirectory = outputLocationPath.toFile();
+      if (!outputDirectory.exists()) {
+        outputDirectory.mkdir();
+      }
       logger.info("Using " + outputLocationPath);
       logger.info("");
       int numberOfThreads = (args.length == 4) ? Integer.parseInt(args[3]) : 1;
