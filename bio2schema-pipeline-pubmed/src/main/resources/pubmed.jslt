@@ -49,7 +49,7 @@ let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
     "familyName": .LastName,
     "affiliation": if(.AffiliationInfo) {
       "@type": "Organization",
-      "name": if(is-array(.AffiliationInfo)) .AffiliationInfo[0].Affiliation
+      "alternateName": if(is-array(.AffiliationInfo)) .AffiliationInfo[0].Affiliation
               else .AffiliationInfo.Affiliation
     },
     "url": if (.Identifier.Source=="ORCID")

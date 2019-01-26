@@ -54,7 +54,7 @@ public class AuthorAffiliationProcessor implements Processor {
 
   private void reconcileAffiliation(JsonNode affiliation) throws IOException {
     checkIfObjectNode(affiliation);
-    String affiliationText = affiliation.path(PROPERTY_NAME).asText();
+    String affiliationText = affiliation.path(PROPERTY_ALTERNATE_NAME).asText();
     Collection<String> organizationNames = organizationRecognizer.classify(affiliationText);
     Optional<GenericEntity> foundItem = iterateAndReconcileKnownOrganization(organizationNames);
     if (foundItem.isPresent()) {
