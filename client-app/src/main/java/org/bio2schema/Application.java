@@ -58,8 +58,7 @@ public class Application {
         logger.warn("Invalid number for number-of-threads argument: {}", numberOfThreads);
         logger.warn("Using the default single thread processing");
         numberOfThreads = 1;
-      }
-      if (numberOfThreads == 1) {
+      } else if (numberOfThreads == 1) {
         logger.info("Using a single thread processing");
       } else {
         logger.info("Using parallel processing of {} threads", numberOfThreads);
