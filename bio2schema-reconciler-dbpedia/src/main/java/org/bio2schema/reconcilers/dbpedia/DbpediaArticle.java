@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.bio2schema.api.reconciliation.entitytype.GenericEntity;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -45,14 +46,15 @@ public class DbpediaArticle implements GenericEntity {
   @JsonProperty("type")
   @Override
   public String getType() {
-    String type = TYPE_THING; // default type
+    String schemaOrgType = TYPE_THING; // default type
     for (ClassType ct : classes) {
       String uri = ct.getUri();
-      if (uri.contains("http://schema.org")) {
-        type = getTypeName(uri);
+      Optional<String> type = getTypeName(uri);
+      if (type.isPresent()) {
+        schemaOrgType = type.get();
       }
     }
-    return type;
+    return schemaOrgType;
   }
 
   @JsonProperty("name")

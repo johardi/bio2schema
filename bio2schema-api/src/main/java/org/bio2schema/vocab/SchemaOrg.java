@@ -1,5 +1,7 @@
 package org.bio2schema.vocab;
 
+import java.util.Optional;
+
 /*
  * Source:
  * https://raw.githubusercontent.com/google/schemaorg-java/master/src/main/java/com/google/schemaorg
@@ -1672,13 +1674,13 @@ public final class SchemaOrg {
     return canonicalName.replace(SCHEMAORG_NAMESPACE, SCHEMAORG_PREFIX);
   }
 
-  public static final String getTypeName(String inputString) {
-    String typeName = inputString;
+  public static final Optional<String> getTypeName(String inputString) {
+    String typeName = null;
     if (inputString.contains(SCHEMAORG_NAMESPACE)) {
       typeName = inputString.replace(SCHEMAORG_NAMESPACE, "");
     } else if (inputString.contains(SCHEMAORG_PREFIX)) {
       typeName = inputString.replace(SCHEMAORG_PREFIX, "");
     }
-    return typeName;
+    return Optional.ofNullable(typeName);
   }
 }
