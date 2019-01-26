@@ -47,7 +47,7 @@ public final class PubMedPipelineFactory implements PipelineFactory {
   
   private DbpediaSimilarityLookup setupDbpediaLookupForOrganization() {
     DbpediaService dbpediaService = new DbpediaService();
-    return new DbpediaSimilarityLookup(dbpediaService)
+    return new DbpediaSimilarityLookup(dbpediaService, 0.965)
         .filterType(TYPE_ORGANIZATION)
         .filterType(TYPE_COLLEGE_OR_UNIVERSITY)
         .filterType(TYPE_EDUCATIONAL_ORGANIZATION)
