@@ -2,6 +2,7 @@ package org.bio2schema.reconcilers.dbpedia;
 
 import static org.bio2schema.util.JsonPreconditions.checkIfObjectNode;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -20,14 +21,8 @@ public class DbpediaLookup extends CachedEntityReconciler<GenericEntity> {
     super("DBpedia Lookup", database);
   }
 
-  public DbpediaLookup filterType(@Nonnull String typeName) {
-    typeFilters.add(typeName);
-    return this;
-  }
-
-  public DbpediaLookup unfilterType(@Nonnull String typeName) {
-    typeFilters.remove(typeName);
-    return this;
+  public void searchOnly(@Nonnull String... typeName) {
+    typeFilters.addAll(Arrays.asList(typeName));
   }
 
   @Nullable

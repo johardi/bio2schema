@@ -42,19 +42,20 @@ public final class ClinicalTrialsPipelineFactory implements PipelineFactory {
 
   private DbpediaLookup setupDbpediaLookupForCity() {
     final DbpediaService dbpediaService = new DbpediaService();
-    return new DbpediaLookup(dbpediaService)
-        .filterType(TYPE_CITY)
-        .filterType(TYPE_PLACE);
+    DbpediaLookup dbpediaLookup = new DbpediaLookup(dbpediaService);
+    dbpediaLookup.searchOnly(TYPE_CITY, TYPE_PLACE);
+    return dbpediaLookup;
   }
 
   private DbpediaSimilarityLookup setupDbpediaLookupForOrganization() {
     final DbpediaService dbpediaService = new DbpediaService();
-    return new DbpediaSimilarityLookup(dbpediaService)
-        .filterType(TYPE_ORGANIZATION)
-        .filterType(TYPE_COLLEGE_OR_UNIVERSITY)
-        .filterType(TYPE_EDUCATIONAL_ORGANIZATION)
-        .filterType(TYPE_GOVERNMENT_ORGANIZATION)
-        .filterType(TYPE_HOSPITAL);
+    DbpediaSimilarityLookup dbpediaLookup = new DbpediaSimilarityLookup(dbpediaService);
+    dbpediaLookup.searchOnly(TYPE_ORGANIZATION,
+        TYPE_COLLEGE_OR_UNIVERSITY,
+        TYPE_EDUCATIONAL_ORGANIZATION,
+        TYPE_GOVERNMENT_ORGANIZATION,
+        TYPE_HOSPITAL);
+    return dbpediaLookup;
   }
 
   private BioPortalSearch setupBioPortalSearch() {

@@ -3,6 +3,7 @@ package org.bio2schema.reconcilers.dbpedia;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.bio2schema.util.JsonPreconditions.checkIfObjectNode;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -34,14 +35,8 @@ public class DbpediaSimilarityLookup extends CachedEntityReconciler<GenericEntit
     this.similarityThreshold = checkNotNull(similarityThreshold);
   }
 
-  public DbpediaSimilarityLookup filterType(@Nonnull String typeName) {
-    typeFilters.add(typeName);
-    return this;
-  }
-
-  public DbpediaSimilarityLookup unfilterType(@Nonnull String typeName) {
-    typeFilters.remove(typeName);
-    return this;
+  public void searchOnly(@Nonnull String... typeName) {
+    typeFilters.addAll(Arrays.asList(typeName));
   }
 
   @Nullable
