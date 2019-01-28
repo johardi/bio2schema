@@ -2,14 +2,10 @@ package org.bio2schema;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
@@ -17,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bio2schema.PipelineExecutor.ResultBundle;
 import org.bio2schema.api.pipeline.Pipeline;
 import org.bio2schema.apibinding.PipelineManager;
 import org.bio2schema.apibinding.Platform;
@@ -39,18 +36,16 @@ public class Application {
     Optional<Pipeline> foundPipeline = pipelineManager.getPipelineFor(datasetName);
     if (foundPipeline.isPresent()) {
       logger.info("--- input-data-location ---");
-      String inputLocation = args[1];
-      Path inputLocationPath = Paths.get(inputLocation);
-      logger.info("Using " + inputLocationPath);
+      Path inputLocation = Paths.get(args[1]);
+      logger.info("Using " + inputLocation);
       logger.info("");
       logger.info("--- output-result-location ---");
-      String outputLocation = args[2];
-      Path outputLocationPath = Paths.get(outputLocation);
-      File outputDirectory = outputLocationPath.toFile();
+      Path outputLocation = Paths.get(args[2]);
+      File outputDirectory = outputLocation.toFile();
       if (!outputDirectory.exists()) {
         outputDirectory.mkdir();
       }
-      logger.info("Using " + outputLocationPath);
+      logger.info("Using " + outputLocation);
       logger.info("");
       int numberOfThreads = (args.length == 4) ? Integer.parseInt(args[3]) : 1;
       logger.info("--- number-of-threads ---");
@@ -66,10 +61,11 @@ public class Application {
       logger.info("");
       logger.info("--- pipeline-exec ---");
       final Pipeline pipeline = foundPipeline.get();
-      if (isDirectory(inputLocationPath)) {
-        processInputDirectory(pipeline, inputLocationPath, outputLocationPath, numberOfThreads);
+      PipelineExecutor executor = new PipelineExecutor(pipeline);
+      if (isDirectory(inputLocation)) {
+        processInputDirectory(executor, inputLocation, outputLocation, numberOfThreads);
       } else {
-        processInputFile(pipeline, inputLocationPath, outputLocationPath);
+        processInputFile(executor, inputLocation, outputLocation);
       }
       logger.info("");
       logger.info("TASK DONE in {}", formatDuration(stopwatch));
@@ -78,57 +74,55 @@ public class Application {
     }
   }
 
-  private static boolean isDirectory(Path path) {
-    return Files.isDirectory(path);
+  private static boolean isDirectory(Path location) {
+    return Files.isDirectory(location);
   }
 
-  private static void processInputDirectory(Pipeline pipeline, Path inputDirPath,
-      Path outputDirPath, int numberOfThreads) {
+  private static void processInputDirectory(PipelineExecutor executor, Path inputDirectory,
+      Path outputDirectory, int numberOfThreads) {
     try {
       ForkJoinPool fjp = new ForkJoinPool(numberOfThreads);
-      List<CompletableFuture<Boolean>> list =
-          Files.walk(inputDirPath).filter(filePath -> filePath.toString().endsWith(".xml"))
-              .map(filePath -> CompletableFuture
-                  .supplyAsync(() -> processInputFile(pipeline, filePath, outputDirPath), fjp))
-              .collect(Collectors.toList());
-      list.stream().map(CompletableFuture::join).forEach(item -> {
-        /* Does nothing */ });
+      Files.walk(inputDirectory)
+          .filter(inputLocation -> inputLocation.toString().endsWith(".xml"))
+          .map(inputLocation -> CompletableFuture
+              .supplyAsync(() -> executor.submit(inputLocation), fjp))
+          .collect(Collectors.toList())
+          .stream()
+          .map(CompletableFuture::join)
+          .forEach(result -> {
+            writeResultBundle(result, outputDirectory);
+          });
     } catch (IOException e) {
-      logger.error("Error while scanning the directory");
+      logger.error("Error while processing input directory {}", inputDirectory);
       logger.error(e);
     }
   }
 
-  private static boolean processInputFile(Pipeline pipeline, Path inputFilePath,
-      Path outputDirPath) {
-    boolean success = true;
+  private static void processInputFile(PipelineExecutor executor, Path inputLocation, Path outputDirectory) {
+    ResultBundle result = executor.submit(inputLocation);
+    writeResultBundle(result, outputDirectory);
+  }
+
+  private static void writeResultBundle(ResultBundle result, Path outputDirectory) {
     try {
-      logger.info("Processing {}", inputFilePath.getFileName());
-      Reader reader = new FileReader(inputFilePath.toFile(), StandardCharsets.UTF_8);
-      JsonNode input = JacksonUtils.readXmlAsJson(reader);
-      JsonNode output = pipeline.process(input);
-      String outputFileName = getFileName(inputFilePath) + ".json";
-      Path outputFilePath = Paths.get(outputDirPath.toString(), outputFileName);
-      writeOutput(outputFilePath, output);
+      JsonNode content = result.getContent();
+      Path outputLocation = createOutputLocation(outputDirectory, result.getSourceInput());
+      JacksonUtils.prettyPrint(content, new FileOutputStream(outputLocation.toFile()));
+      logger.info("Processing {} ... OK", result.getSourceInput().getFileName());
     } catch (Exception e) {
-      logger.error("Error processing {}", inputFilePath.getFileName(), e);
-      success = false;
+      logger.error("Processing {} ... FAILED", result.getSourceInput().getFileName());
+      logger.error("... Cause: {}" , e.getMessage());
     }
-    return success;
   }
 
-  private static void writeOutput(Path outputFilePath, JsonNode content) throws IOException {
-    JacksonUtils.prettyPrint(content, new FileOutputStream(outputFilePath.toFile()));
-  }
-
-  private static String getFileName(Path inputPath) {
-    String fileName = inputPath.getFileName().toString();
+  private static Path createOutputLocation(Path outputDirectory, Path inputLocation) {
+    String fileName = inputLocation.getFileName().toString();
     int i = fileName.lastIndexOf('.');
     if (i > 0 && i < fileName.length() - 1) {
       String extension = fileName.substring(i);
       fileName = fileName.replace(extension, "");
     }
-    return fileName;
+    return Paths.get(outputDirectory.toString(), fileName + ".json");
   }
 
   private static String formatDuration(Stopwatch stopwatch) {
