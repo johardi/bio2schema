@@ -49,7 +49,7 @@ public final class ClinicalTrialsPipelineFactory implements PipelineFactory {
 
   private DbpediaSimilarityLookup setupDbpediaLookupForOrganization() {
     final DbpediaService dbpediaService = new DbpediaService();
-    DbpediaSimilarityLookup dbpediaLookup = new DbpediaSimilarityLookup(dbpediaService);
+    DbpediaSimilarityLookup dbpediaLookup = new DbpediaSimilarityLookup(dbpediaService, 0.965);
     dbpediaLookup.searchOnly(TYPE_ORGANIZATION,
         TYPE_COLLEGE_OR_UNIVERSITY,
         TYPE_EDUCATIONAL_ORGANIZATION,
