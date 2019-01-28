@@ -47,12 +47,13 @@ public final class PubMedPipelineFactory implements PipelineFactory {
   
   private DbpediaSimilarityLookup setupDbpediaLookupForOrganization() {
     DbpediaService dbpediaService = new DbpediaService();
-    return new DbpediaSimilarityLookup(dbpediaService, 0.965)
-        .filterType(TYPE_ORGANIZATION)
-        .filterType(TYPE_COLLEGE_OR_UNIVERSITY)
-        .filterType(TYPE_EDUCATIONAL_ORGANIZATION)
-        .filterType(TYPE_GOVERNMENT_ORGANIZATION)
-        .filterType(TYPE_HOSPITAL);
+    DbpediaSimilarityLookup dbpediaLookup = new DbpediaSimilarityLookup(dbpediaService, 0.965);
+    dbpediaLookup.searchOnly(TYPE_ORGANIZATION,
+        TYPE_COLLEGE_OR_UNIVERSITY,
+        TYPE_EDUCATIONAL_ORGANIZATION,
+        TYPE_GOVERNMENT_ORGANIZATION,
+        TYPE_HOSPITAL);
+    return dbpediaLookup;
   }
 
   private BioPortalSearch setupBioPortalSearch() {
