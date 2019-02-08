@@ -14,7 +14,7 @@ let studySponsors = unique([$leadSponsor, $collaborators])
 let studyLocations = if(.location) flatten([.location])
 let studyLocationInCities = unique([ for($studyLocations)
     if(.facility.address.state) .facility.address.city + ", " + .facility.address.state
-    else .facility.address.city + ", " + .facility.address.country ])
+    else .facility.address.city ])
 let studyPublications = unique([.reference, .results_reference])
 
 // ===== MAPPING DEFINITION ========
