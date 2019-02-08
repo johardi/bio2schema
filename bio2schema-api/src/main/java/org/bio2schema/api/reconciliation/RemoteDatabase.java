@@ -1,5 +1,6 @@
 package org.bio2schema.api.reconciliation;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.String.format;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import javax.annotation.Nonnull;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bio2schema.util.JacksonUtils;
@@ -18,6 +20,17 @@ import com.google.common.io.CharStreams;
 public abstract class RemoteDatabase implements Database {
 
   private static Logger logger = LogManager.getRootLogger();
+
+  private final String name;
+
+  public RemoteDatabase(@Nonnull String name) {
+    this.name = checkNotNull(name);
+  }
+
+  @Override
+  public String getName() {
+    return name;
+  }
 
   @Override
   public Object find(String label) throws IOException {
@@ -51,8 +64,9 @@ public abstract class RemoteDatabase implements Database {
     return JacksonUtils.mapper.readTree(conn.getInputStream());
   }
 
-  private static void throwIOException(HttpURLConnection conn) throws IOException {
-    String errorMessage = format("Service provider returns %s: %s. ",
+  private void throwIOException(HttpURLConnection conn) throws IOException {
+    String errorMessage = format("%s returns %s: %s. ",
+        getName(),
         conn.getResponseCode(),
         conn.getResponseMessage());
     final InputStream errorStream = conn.getErrorStream();

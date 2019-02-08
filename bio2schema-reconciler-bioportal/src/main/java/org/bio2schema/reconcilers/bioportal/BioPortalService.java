@@ -21,6 +21,7 @@ public class BioPortalService extends RemoteDatabase {
   }
 
   public BioPortalService(@Nonnull String apiKey) {
+    super("BioPortal Search");
     this.apiKey = checkNotNull(apiKey);
     setDefaultParameters();
   }

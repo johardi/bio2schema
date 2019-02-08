@@ -17,7 +17,7 @@ public final class DrugBankPipelineFactory implements PipelineFactory {
         new DrugNameProcessor(bioPortalSearch));
   }
 
-  private BioPortalSearch setupBioPortalSearch() {
+  private EntityReconciler<MedicalEntity> setupBioPortalSearch() {
     return new BioPortalSearch(new BioPortalService());
   }
 

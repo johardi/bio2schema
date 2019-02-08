@@ -7,35 +7,33 @@ import javax.annotation.Nonnull;
 import org.bio2schema.api.reconciliation.entitytype.GenericEntity;
 import com.google.common.cache.CacheBuilder;
 
-public abstract class CachedEntityReconciler<T extends GenericEntity>
-    extends StandardEntityReconciler<T> {
+public class CachedEntityReconciler<T extends GenericEntity> implements EntityReconciler<T> {
 
-  private final ConcurrentMap<String, Optional<T>> cachedDatabase =
-      CacheBuilder.newBuilder().maximumSize(200L).<String, Optional<T>>build().asMap();
+  private static final long DEFAULT_CACHE_SIZE = 100L;
 
-  public CachedEntityReconciler(@Nonnull String serviceName, @Nonnull Database database) {
-    super(serviceName, database);
+  private final EntityReconciler<T> reconciler;
+
+  private final ConcurrentMap<String, Optional<T>> cachedDatabase;
+
+  public CachedEntityReconciler(@Nonnull EntityReconciler<T> reconciler) {
+    this(reconciler, DEFAULT_CACHE_SIZE);
+  }
+
+  public CachedEntityReconciler(@Nonnull EntityReconciler<T> reconciler, long cacheSize) {
+    this.reconciler = reconciler;
+    cachedDatabase = CacheBuilder.newBuilder()
+        .maximumSize(cacheSize)
+        .<String, Optional<T>>build()
+        .asMap();
   }
 
   @Override
   public Optional<T> reconcile(String inputString) throws IOException {
-    try {
-      Optional<T> result = cachedDatabase.get(inputString);
-      if (result == null) {
-        result = retrieveFromDatabase(inputString);
-        cachedDatabase.put(inputString, result);
-      }
-      return result;
-    } catch (IOException e) {
-      String message = String.format(
-          "A problem occurred using reconciler '%s'\n> %s",
-          serviceName, e.getMessage());
-      throw new IOException(message);
+    Optional<T> result = cachedDatabase.get(inputString);
+    if (result == null) {
+      result = reconciler.reconcile(inputString);
+      cachedDatabase.put(inputString, result);
     }
-  }
-
-  private Optional<T> retrieveFromDatabase(String inputString) throws IOException {
-    Object outputResult = database.find(inputString);
-    return Optional.ofNullable(handleResult(inputString, outputResult));
+    return result;
   }
 }

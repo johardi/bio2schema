@@ -9,6 +9,7 @@ import org.bio2schema.api.pipeline.Pipeline;
 import org.bio2schema.api.pipeline.PipelineFactory;
 import org.bio2schema.api.recognition.Classifier;
 import org.bio2schema.api.recognition.EntityRecognizer;
+import org.bio2schema.api.reconciliation.CachedEntityReconciler;
 import org.bio2schema.api.reconciliation.EntityReconciler;
 import org.bio2schema.api.reconciliation.entitytype.GenericEntity;
 import org.bio2schema.api.reconciliation.entitytype.MedicalEntity;
@@ -45,7 +46,7 @@ public final class PubMedPipelineFactory implements PipelineFactory {
     return new StanfordNer(classifier, Type.ORGANIZATION.getString());
   }
   
-  private DbpediaSimilarityLookup setupDbpediaLookupForOrganization() {
+  private EntityReconciler<GenericEntity> setupDbpediaLookupForOrganization() {
     DbpediaService dbpediaService = new DbpediaService();
     DbpediaSimilarityLookup dbpediaLookup = new DbpediaSimilarityLookup(dbpediaService, 0.965);
     dbpediaLookup.searchOnly(TYPE_ORGANIZATION,
@@ -53,14 +54,15 @@ public final class PubMedPipelineFactory implements PipelineFactory {
         TYPE_EDUCATIONAL_ORGANIZATION,
         TYPE_GOVERNMENT_ORGANIZATION,
         TYPE_HOSPITAL);
-    return dbpediaLookup;
+    return new CachedEntityReconciler<>(dbpediaLookup, 500);
   }
 
-  private BioPortalSearch setupBioPortalSearch() {
-    return new BioPortalSearch(new BioPortalService());
+  private EntityReconciler<MedicalEntity> setupBioPortalSearch() {
+    BioPortalSearch bioPortalSearch = new BioPortalSearch(new BioPortalService());
+    return new CachedEntityReconciler<>(bioPortalSearch, 250);
   }
 
-  private DrugBankLookup setupDrugBankLookup() {
+  private EntityReconciler<MedicalEntity> setupDrugBankLookup() {
     return new DrugBankLookup(new DrugBankDatabase());
   }
 

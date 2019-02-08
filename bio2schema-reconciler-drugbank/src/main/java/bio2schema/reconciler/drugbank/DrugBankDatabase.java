@@ -18,6 +18,11 @@ public class DrugBankDatabase extends LocalDatabase {
   private static final String DEFAULT_DB_SOURCE = "drugbank.csv";
 
   @Override
+  public String getName() {
+    return "DrugBank CSV Lookup";
+  }
+
+  @Override
   protected Map<String, Object> getDirectoryMap() {
     final ClassLoader cl = DrugBankDatabase.class.getClassLoader();
     try (InputStream stream = cl.getResourceAsStream(DEFAULT_DB_SOURCE)) {

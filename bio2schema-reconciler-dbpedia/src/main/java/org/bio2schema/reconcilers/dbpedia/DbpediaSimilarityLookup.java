@@ -5,24 +5,27 @@ import static org.bio2schema.util.JsonPreconditions.checkIfObjectNode;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 import org.apache.commons.text.similarity.SimilarityScore;
-import org.bio2schema.api.reconciliation.CachedEntityReconciler;
 import org.bio2schema.api.reconciliation.Database;
+import org.bio2schema.api.reconciliation.EntityReconciler;
 import org.bio2schema.api.reconciliation.entitytype.GenericEntity;
 import org.bio2schema.util.JacksonUtils;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
-public class DbpediaSimilarityLookup extends CachedEntityReconciler<GenericEntity> {
+public class DbpediaSimilarityLookup implements EntityReconciler<GenericEntity> {
 
   private static final double DEFAULT_SIMILARITY_THRESHOLD = 0.88;
 
   private final SimilarityScore<Double> similarityAlgorithm = new JaroWinklerDistance();
 
-  private double similarityThreshold;
+  private final Database database;
+
+  private final double similarityThreshold;
 
   private final List<String> typeFilters = Lists.newArrayList();
 
@@ -31,7 +34,7 @@ public class DbpediaSimilarityLookup extends CachedEntityReconciler<GenericEntit
   }
 
   public DbpediaSimilarityLookup(@Nonnull Database database, @Nonnull double similarityThreshold) {
-    super("DBpedia Lookup", database);
+    this.database = checkNotNull(database);
     this.similarityThreshold = checkNotNull(similarityThreshold);
   }
 
@@ -39,8 +42,21 @@ public class DbpediaSimilarityLookup extends CachedEntityReconciler<GenericEntit
     typeFilters.addAll(Arrays.asList(typeName));
   }
 
-  @Nullable
   @Override
+  public Optional<GenericEntity> reconcile(String inputString) throws IOException {
+    try {
+      Object outputResult = database.find(inputString);
+      DbpediaArticle article = handleResult(inputString, outputResult);
+      return Optional.ofNullable(article);
+    } catch (IOException e) {
+      String message = String.format(
+          "A problem occurred using reconciler '%s'\n> %s",
+          database.getName(), e.getMessage());
+      throw new IOException(message);
+    }
+  }
+
+  @Nullable
   public DbpediaArticle handleResult(String inputString, Object outputResult) throws IOException {
     ObjectNode objectNode = checkIfObjectNode(outputResult);
     DbpediaArticle[] results = JacksonUtils.mapper.treeToValue(objectNode.get("results"), DbpediaArticle[].class);

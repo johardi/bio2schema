@@ -13,6 +13,7 @@ public final class DbpediaService extends RemoteDatabase {
   private final Properties serviceParameters = new Properties();
 
   public DbpediaService() {
+    super("DBpedia Lookup");
     setDefaultParameters();
   }
 
