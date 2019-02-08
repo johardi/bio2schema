@@ -6,6 +6,7 @@ import static org.bio2schema.util.JsonMutators.with;
 import static org.bio2schema.util.JsonPreconditions.checkIfObjectNode;
 import static org.bio2schema.vocab.JsonLd.ID;
 import static org.bio2schema.vocab.JsonLd.TYPE;
+import static org.bio2schema.vocab.SchemaOrg.*;
 import static org.bio2schema.vocab.SchemaOrg.PROPERTY_AFFILIATION;
 import static org.bio2schema.vocab.SchemaOrg.PROPERTY_ALTERNATE_NAME;
 import static org.bio2schema.vocab.SchemaOrg.PROPERTY_AUTHOR;
@@ -60,7 +61,9 @@ public class AuthorAffiliationProcessor implements Processor {
     if (foundItem.isPresent()) {
       GenericEntity organization = foundItem.get();
       set(affiliation, with(ID, organization.getId()));
-      set(affiliation, with(TYPE, organization.getType()));
+      if (!TYPE_THING.equals(organization.getType())) {
+        set(affiliation, with(TYPE, organization.getType()));
+      }
       set(affiliation, with(PROPERTY_NAME, organization.getName()));
       set(affiliation, with(PROPERTY_ALTERNATE_NAME, affiliationText));
     }

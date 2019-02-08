@@ -5,8 +5,10 @@ import static org.bio2schema.util.JsonMutators.set;
 import static org.bio2schema.util.JsonMutators.with;
 import static org.bio2schema.util.JsonPreconditions.checkIfObjectNode;
 import static org.bio2schema.vocab.JsonLd.ID;
+import static org.bio2schema.vocab.JsonLd.TYPE;
 import static org.bio2schema.vocab.SchemaOrg.PROPERTY_NAME;
 import static org.bio2schema.vocab.SchemaOrg.PROPERTY_SPONSOR;
+import static org.bio2schema.vocab.SchemaOrg.TYPE_THING;
 import java.io.IOException;
 import java.util.Optional;
 import javax.annotation.Nonnull;
@@ -43,6 +45,9 @@ public final class StudySponsorProcessor implements Processor {
       if (result.isPresent()) {
         GenericEntity organization = result.get();
         set(studySponsor, with(ID, organization.getId()));
+        if (!TYPE_THING.equals(organization.getType())) {
+          set(studySponsor, with(TYPE, organization.getType()));
+        }
         set(studySponsor, with(PROPERTY_NAME, organization.getName()));
       }
     };
