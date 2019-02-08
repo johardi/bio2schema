@@ -38,6 +38,7 @@ public final class StudySponsorProcessor implements Processor {
     for (JsonNode studySponsor : studySponsorList) {
       checkIfObjectNode(studySponsor);
       String sponsorName = studySponsor.get(PROPERTY_NAME).asText();
+      sponsorName = removeAbbreviation(sponsorName);
       Optional<GenericEntity> result = reconciler.reconcile(sponsorName);
       if (result.isPresent()) {
         GenericEntity organization = result.get();
@@ -45,5 +46,9 @@ public final class StudySponsorProcessor implements Processor {
         set(studySponsor, with(PROPERTY_NAME, organization.getName()));
       }
     };
+  }
+
+  private String removeAbbreviation(String sponsorName) {
+    return sponsorName.replaceAll("\\s*\\([^)]*\\)", "");
   }
 }
