@@ -2,6 +2,7 @@ package org.bio2schema.reconcilers.dbpedia;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.bio2schema.util.JsonPreconditions.checkIfObjectNode;
+import static org.bio2schema.vocab.SchemaOrg.TYPE_THING;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +20,7 @@ public class DbpediaLookup implements EntityReconciler<GenericEntity> {
 
   private final Database database;
 
-  private final List<String> typeFilters = Lists.newArrayList();
+  private final List<String> typeFilters = Lists.newArrayList(TYPE_THING);
 
   public DbpediaLookup(@Nonnull Database database) {
     this.database = checkNotNull(database);
@@ -54,14 +55,10 @@ public class DbpediaLookup implements EntityReconciler<GenericEntity> {
   private DbpediaArticle getImmediateTopResult(DbpediaArticle[] results) {
     for (int i = 0; i < results.length; i++) {
       DbpediaArticle article = results[i];
-      if (isFilterEmpty() || typeFilters.contains(article.getType())) {
+      if (typeFilters.contains(article.getType())) {
         return article;
       }
     }
     return null;
-  }
-
-  private boolean isFilterEmpty() {
-    return typeFilters.isEmpty();
   }
 }

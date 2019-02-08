@@ -2,6 +2,7 @@ package org.bio2schema.reconcilers.dbpedia;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.bio2schema.util.JsonPreconditions.checkIfObjectNode;
+import static org.bio2schema.vocab.SchemaOrg.TYPE_THING;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +28,7 @@ public class DbpediaSimilarityLookup implements EntityReconciler<GenericEntity> 
 
   private final double similarityThreshold;
 
-  private final List<String> typeFilters = Lists.newArrayList();
+  private final List<String> typeFilters = Lists.newArrayList(TYPE_THING);
 
   public DbpediaSimilarityLookup(@Nonnull Database database) {
     this(database, DEFAULT_SIMILARITY_THRESHOLD);
@@ -64,7 +65,7 @@ public class DbpediaSimilarityLookup implements EntityReconciler<GenericEntity> 
     double minThreshold = similarityThreshold;
     for (int i = 0; i < results.length; i++) {
       DbpediaArticle article = results[i];
-      if (isFilterEmpty() || typeFilters.contains(article.getType())) {
+      if (typeFilters.contains(article.getType())) {
         double score = similarityAlgorithm.apply(inputString, article.getName());
         if (isSingleWord(inputString)) {
           if (score == 1) {
@@ -80,10 +81,6 @@ public class DbpediaSimilarityLookup implements EntityReconciler<GenericEntity> 
       }
     }
     return result;
-  }
-
-  private boolean isFilterEmpty() {
-    return typeFilters.isEmpty();
   }
 
   private static boolean isSingleWord(String s) {
