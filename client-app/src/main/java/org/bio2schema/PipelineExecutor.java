@@ -22,27 +22,22 @@ public class PipelineExecutor {
     this.pipeline = checkNotNull(pipeline);
   }
 
-  interface ResultBundle {
-    Path getSourceInput();
-    JsonNode getContent() throws Exception;
-  }
-
-  public ResultBundle submit(Path inputLocation) {
+  public ResultObject submit(Path inputLocation) {
     try {
       logger.info("Processing document: [{}]", inputLocation.getFileName());
       Reader reader = new FileReader(inputLocation.toFile(), StandardCharsets.UTF_8);
       JsonNode inputJson = JacksonUtils.readXmlAsJson(reader);
       JsonNode outputJson = pipeline.process(inputJson);
-      return new ResultBundle() {
+      return new ResultObject() {
         // @formatter: off
-        @Override public Path getSourceInput() { return inputLocation; }
+        @Override public Path getInputLocation() { return inputLocation; }
         @Override public JsonNode getContent() { return outputJson; }
         // @formatter: on
       };
     } catch (Exception e) {
-      return new ResultBundle() {
+      return new ResultObject() {
         // @formatter: off
-        @Override public Path getSourceInput() { return inputLocation; }
+        @Override public Path getInputLocation() { return inputLocation; }
         @Override public JsonNode getContent() throws Exception { throw e; }
         // @formatter: on
       };

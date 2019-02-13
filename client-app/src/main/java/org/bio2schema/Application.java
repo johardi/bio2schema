@@ -1,7 +1,5 @@
 package org.bio2schema;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,12 +11,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bio2schema.PipelineExecutor.ResultBundle;
 import org.bio2schema.api.pipeline.Pipeline;
 import org.bio2schema.apibinding.PipelineManager;
 import org.bio2schema.apibinding.Platform;
-import org.bio2schema.util.JacksonUtils;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Stopwatch;
 
 public class Application {
@@ -41,10 +36,7 @@ public class Application {
       logger.info("");
       logger.info("--- output-result-location ---");
       Path outputLocation = Paths.get(args[2]);
-      File outputDirectory = outputLocation.toFile();
-      if (!outputDirectory.exists()) {
-        outputDirectory.mkdir();
-      }
+      DocumentWriter writer = new DocumentWriter(outputLocation);
       logger.info("Using " + outputLocation);
       logger.info("");
       int numberOfThreads = (args.length == 4) ? Integer.parseInt(args[3]) : 1;
@@ -63,9 +55,9 @@ public class Application {
       final Pipeline pipeline = foundPipeline.get();
       PipelineExecutor executor = new PipelineExecutor(pipeline);
       if (isDirectory(inputLocation)) {
-        processInputDirectory(executor, inputLocation, outputLocation, numberOfThreads);
+        processInputDirectory(inputLocation, executor, writer, numberOfThreads);
       } else {
-        processInputFile(executor, inputLocation, outputLocation);
+        processInputFile(inputLocation, executor, writer);
       }
       logger.info("");
       logger.info("TASK DONE in {}", formatDuration(stopwatch));
@@ -78,8 +70,8 @@ public class Application {
     return Files.isDirectory(location);
   }
 
-  private static void processInputDirectory(PipelineExecutor executor, Path inputDirectory,
-      Path outputDirectory, int numberOfThreads) {
+  private static void processInputDirectory(Path inputDirectory, PipelineExecutor executor,
+      DocumentWriter writer, int numberOfThreads) {
     try {
       ForkJoinPool fjp = new ForkJoinPool(numberOfThreads);
       Files.walk(inputDirectory)
@@ -89,40 +81,17 @@ public class Application {
           .collect(Collectors.toList())
           .parallelStream()
           .map(CompletableFuture::join)
-          .forEach(result -> {
-            writeResultBundle(result, outputDirectory);
-          });
+          .forEach(result -> writer.writeToFile(result));
     } catch (IOException e) {
       logger.error("Error while processing input directory [{}]", inputDirectory);
       logger.error(e);
     }
   }
 
-  private static void processInputFile(PipelineExecutor executor, Path inputLocation, Path outputDirectory) {
-    ResultBundle result = executor.submit(inputLocation);
-    writeResultBundle(result, outputDirectory);
-  }
-
-  private static void writeResultBundle(ResultBundle result, Path outputDirectory) {
-    try {
-      JsonNode content = result.getContent();
-      Path outputLocation = createOutputLocation(outputDirectory, result.getSourceInput());
-      JacksonUtils.prettyPrint(content, new FileOutputStream(outputLocation.toFile()));
-      logger.info("Succeed transforming document: [{}]", result.getSourceInput().getFileName());
-    } catch (Exception e) {
-      logger.error("Failed transforming document: [{}]", result.getSourceInput().getFileName());
-      logger.error(e.getMessage());
-    }
-  }
-
-  private static Path createOutputLocation(Path outputDirectory, Path inputLocation) {
-    String fileName = inputLocation.getFileName().toString();
-    int i = fileName.lastIndexOf('.');
-    if (i > 0 && i < fileName.length() - 1) {
-      String extension = fileName.substring(i);
-      fileName = fileName.replace(extension, "");
-    }
-    return Paths.get(outputDirectory.toString(), fileName + ".json");
+  private static void processInputFile(Path inputLocation, PipelineExecutor executor,
+      DocumentWriter writer) {
+    ResultObject result = executor.submit(inputLocation);
+    writer.writeToFile(result);
   }
 
   private static String formatDuration(Stopwatch stopwatch) {
