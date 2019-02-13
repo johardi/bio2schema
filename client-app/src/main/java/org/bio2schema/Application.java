@@ -93,7 +93,7 @@ public class Application {
             writeResultBundle(result, outputDirectory);
           });
     } catch (IOException e) {
-      logger.error("Error while processing input directory {}", inputDirectory);
+      logger.error("Error while processing input directory [{}]", inputDirectory);
       logger.error(e);
     }
   }
@@ -108,10 +108,10 @@ public class Application {
       JsonNode content = result.getContent();
       Path outputLocation = createOutputLocation(outputDirectory, result.getSourceInput());
       JacksonUtils.prettyPrint(content, new FileOutputStream(outputLocation.toFile()));
-      logger.info("Processing {} ... OK", result.getSourceInput().getFileName());
+      logger.info("Succeed transforming document: [{}]", result.getSourceInput().getFileName());
     } catch (Exception e) {
-      logger.error("Processing {} ... FAILED", result.getSourceInput().getFileName());
-      logger.error("... Cause: {}" , e.getMessage());
+      logger.error("Failed transforming document: [{}]", result.getSourceInput().getFileName());
+      logger.error(e.getMessage());
     }
   }
 

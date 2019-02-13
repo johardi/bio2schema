@@ -14,7 +14,7 @@ Configuration:
       - name: stdoutAppender
         target: SYSTEM_OUT
         PatternLayout:
-          pattern: '%-5level [%d{dd-MMM-yyyy HH:mm:ss}] %C{1.}: %msg%n'
+          pattern: '[%d{ISO8601}][%-5p][%-15C{1.}] %m%n'
         ThresholdFilter:
           level: warn
           onMismatch: ACCEPT
@@ -22,7 +22,7 @@ Configuration:
       - name: stderrAppender
         target: SYSTEM_ERR
         PatternLayout:
-          pattern:  '%-5level [%d{dd-MMM-yyyy HH:mm:ss}] %C{1.}: %msg%n'
+          pattern:  '[%d{ISO8601}][%-5p][%-15C{1.}] %m%n'
         ThresholdFilter:
           level: warn
           onMatch: ACCEPT
@@ -31,7 +31,7 @@ Configuration:
       fileName: ${basepath}/${logname}.log
       filePattern: ${basepath}/archive/${logname}_%d{yyyyMMdd}.log.gz
       PatternLayout:
-        pattern: '%r,%d{ISO8601},%level,%C{10},%msg%n'
+        pattern: '%r,[%d{ISO8601}][%-5p][%-15C{1.}] %m%n'
       Policies:
         SizeBasedTriggeringPolicy:
           size: 10 MB
