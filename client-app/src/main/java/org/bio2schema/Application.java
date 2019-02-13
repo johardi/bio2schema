@@ -87,7 +87,7 @@ public class Application {
           .map(inputLocation -> CompletableFuture
               .supplyAsync(() -> executor.submit(inputLocation), fjp))
           .collect(Collectors.toList())
-          .stream()
+          .parallelStream()
           .map(CompletableFuture::join)
           .forEach(result -> {
             writeResultBundle(result, outputDirectory);
