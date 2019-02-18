@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import org.bio2schema.api.pipeline.Pipeline;
 import org.bio2schema.apibinding.PipelineManager;
 import org.bio2schema.apibinding.Platform;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Stopwatch;
 
 public class Application {
@@ -70,27 +71,27 @@ public class Application {
     return Files.isDirectory(location);
   }
 
-  private static void processInputDirectory(Path inputDirectory, PipelineExecutor executor,
+  private static void processInputDirectory(Path dirPath, PipelineExecutor executor,
       DocumentWriter writer, int numberOfThreads) {
     try {
       ForkJoinPool fjp = new ForkJoinPool(numberOfThreads);
-      Files.walk(inputDirectory)
-          .filter(inputLocation -> inputLocation.toString().endsWith(".xml"))
-          .map(inputLocation -> CompletableFuture
-              .supplyAsync(() -> executor.submit(inputLocation), fjp))
+      Files.walk(dirPath)
+          .filter(filePath -> filePath.toString().endsWith(".xml"))
+          .map(filePath -> CompletableFuture
+              .supplyAsync(() -> executor.submit(filePath.toFile()), fjp))
           .collect(Collectors.toList())
           .parallelStream()
           .map(CompletableFuture::join)
           .forEach(result -> writer.writeToFile(result));
     } catch (IOException e) {
-      logger.error("Error while processing input directory [{}]", inputDirectory);
+      logger.error("Error while processing input directory [{}]", dirPath);
       logger.error(e);
     }
   }
 
-  private static void processInputFile(Path inputLocation, PipelineExecutor executor,
+  private static void processInputFile(Path filePath, PipelineExecutor executor,
       DocumentWriter writer) {
-    ResultObject result = executor.submit(inputLocation);
+    ResultObject result = executor.submit(filePath.toFile());
     writer.writeToFile(result);
   }
 
