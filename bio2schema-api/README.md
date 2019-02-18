@@ -3,12 +3,14 @@
 ## Pipeline API
 
 A Bio2Schema pipeline consists of:
-* One data transformation implementation, and
-* Zero or many data processing implementations
+* One data [transformation] module, and
+* Zero or many data [processor] modules
 
 Illustration:
 ```
-Input --> [Data Transformation] --> [Data Processor] --> ... --> [Data Processor] --> Output
+Input --> | Transformation --> Processor --> ... --> Processor | --> Output
+          |                                                    |
+          |--------------- Bio2Schema Pipeline ----------------|
 ```
 
 The `PipelineFactory` interface is used to construct the pipeline instance. A code snippet below shows an example of constructing a pipeline for ClinicalTrials.gov data _(note: some details were hidden for brevity)_.
