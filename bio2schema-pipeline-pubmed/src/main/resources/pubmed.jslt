@@ -7,7 +7,9 @@ let articleIdentifiers = flatten([.PubmedData.ArticleIdList.ArticleId])
 let publicationTypes = unique([.MedlineCitation.Article.PublicationTypeList.PublicationType])
 let articleTypes = [ for($publicationTypes) ."" ]
 let abstractText = .MedlineCitation.Article.Abstract.AbstractText
-let articleDescription = if(is-array($abstractText)) join([ for($abstractText) if(is-object(.)) ."" else . ], " ") else $abstractText
+let articleDescription = if(is-array($abstractText)) join([ for($abstractText) if(is-object(.)) ."" else . ], " ")
+   else if(is-object($abstractText)) $abstractText.""
+   else $abstractText
 let articleAnnotatedDescriptions = if(is-array($abstractText)) [ for($abstractText) if(is-object(.)) .Label + ": " + ."" else . ]
 let articleKeywords = [ for(unique([.MedlineCitation.KeywordList.Keyword])) ."" ]
 let elocations = unique([.MedlineCitation.Article.ELocationID])
