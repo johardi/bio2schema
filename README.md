@@ -3,12 +3,12 @@
 ## Overview
 The Bio2Schema Project makes public health data on the Web available in [Schema.org](https://schema.org/) format.
 
-In this pilot project, we focus on 3 biomedical data repositories, which are:
-1. [ClinicalTrials.gov](https://clinicaltrials.gov/)
-2. [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/)
-3. [DrugBank](https://www.drugbank.ca/)
+In this pilot project, I'm sourcing the data from 3 public biomedical data repositories, which are
+1. [ClinicalTrials.gov](https://clinicaltrials.gov/): a database of privately and publicly funded clinical studies conducted around the world
+2. [PubMed](https://www.ncbi.nlm.nih.gov/pubmed/): a free search engine accessing primarily the MEDLINE database of references and abstracts on life sciences and biomedical topics
+3. [DrugBank](https://www.drugbank.ca/): a comprehensive, freely accessible, online database containing information on drugs and drug targets
 
-and implement a data transformation pipeline for each data repository so that every data records are written in the Schema.org format.
+and for each repository, I implemented an ETL pipeline that will transform each data record to a corresponding Schema.org type specification ([HERE](https://github.com/johardi/bio2schema/blob/develop/bio2schema-pipeline-clinicaltrials/README.md), [HERE](https://github.com/johardi/bio2schema/blob/develop/bio2schema-pipeline-pubmed/README.md), and [HERE](https://github.com/johardi/bio2schema/blob/develop/bio2schema-pipeline-drugbank/README.md))
 
 ## Sample Run
 To run the pipeline, first clone this project and execute `gradle runApp` in the command line
@@ -18,22 +18,25 @@ $ git clone https://github.com/johardi/bio2schema.git
 $ cd bio2schema/client-app
 ```
 
-* Transforming the ClinicalTrials.gov data
+* Transforming a single ClinicalTrials.gov data record
 ```
-$ gradle runApp --args='ClinicalTrials ./data/NCT00221338.xml ./output'
-```
-
-* Transforming the PubMed data
-```
-$ gradle runApp --args='PubMed ./data/PM27651978.xml ./output'
+$ gradle runApp --args='ClinicalTrials ./data/NCT00221338.xml ./output-dir'
 ```
 
-* Transforming the DrugBank data
+* Transforming a single PubMed data record
 ```
-$ gradle runApp --args='DrugBank ./data/DB06795.xml ./output'
+$ gradle runApp --args='PubMed ./data/PM27651978.xml ./output-dir'
 ```
 
-_Note: The application supports a concurrent batch processing by adding a number of thread argument (e.g., `--args='ClinicalTrials ./data ./output 4'`)_
+* Transforming a single DrugBank data record
+```
+$ gradle runApp --args='DrugBank ./data/DB06795.xml ./output-dir'
+```
+
+The application also supports a concurrent batch processing and you can enable it by adding a number of thread argument in the command line
+```
+$ gradle runApp --args='ClinicalTrials ./input-dir ./output-dir 4'
+```
 
 ## License
 This software is licensed under the Apache 2 license, quoted below.
