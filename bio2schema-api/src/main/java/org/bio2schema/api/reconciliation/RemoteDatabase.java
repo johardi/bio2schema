@@ -59,21 +59,21 @@ public abstract class RemoteDatabase implements Database {
 
   private JsonNode getResponse(HttpURLConnection conn) throws IOException {
     if (conn.getResponseCode() != 200) {
-      throwIOException(conn);
+      throwHttpRequestException(conn);
     }
     return JacksonUtils.mapper.readTree(conn.getInputStream());
   }
 
-  private void throwIOException(HttpURLConnection conn) throws IOException {
-    String errorMessage = format("%s returns %s: %s. ",
-        getName(),
-        conn.getResponseCode(),
-        conn.getResponseMessage());
-    final InputStream errorStream = conn.getErrorStream();
-    if (errorStream != null) {
-      errorMessage += format("Details:\n%s", getStringFromStream(errorStream));
-    }
-    throw new IOException(errorMessage);
+  protected void throwHttpRequestException(HttpURLConnection conn) throws IOException {
+    String errorMessage = format("%s returns %s", getName(), getErrorMessage(conn));
+    throw new HttpRequestException(errorMessage, conn.getResponseCode());
+  }
+
+  private String getErrorMessage(HttpURLConnection conn) throws IOException {
+    InputStream errorStream = conn.getErrorStream();
+    return (errorStream != null) ? 
+        getStringFromStream(errorStream) :
+        getDefaultString(conn.getResponseMessage(), conn.getResponseCode());
   }
 
   private static String getStringFromStream(InputStream errorStream) throws IOException {
@@ -86,5 +86,9 @@ public abstract class RemoteDatabase implements Database {
     } catch(JsonProcessingException e) { // not a JSON string
       return message;
     }
+  }
+
+  private static String getDefaultString(String message, int responseCode) throws IOException {
+    return format("%s (%s)", message, responseCode);
   }
 }
