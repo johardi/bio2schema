@@ -78,7 +78,16 @@ public class Application {
       Files.walk(dirPath)
           .filter(filePath -> filePath.toString().endsWith(".xml"))
           .map(filePath -> CompletableFuture
-              .supplyAsync(() -> executor.submit(filePath.toFile()), fjp))
+              .supplyAsync(() -> executor.submit(filePath.toFile()), fjp)
+              .orTimeout(15, TimeUnit.MINUTES)
+              .exceptionally(throwable -> {
+                return new ResultObject() {
+                  // @formatter: off
+                  @Override public Path getInputLocation() { return filePath; }
+                  @Override public JsonNode getContent() throws Exception { throw new Exception(throwable); }
+                  // @formatter: on
+                };
+              }))
           .collect(Collectors.toList())
           .parallelStream()
           .map(CompletableFuture::join)
