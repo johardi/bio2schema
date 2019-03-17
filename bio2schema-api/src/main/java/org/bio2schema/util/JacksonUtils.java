@@ -63,6 +63,10 @@ public final class JacksonUtils {
     }
   }
 
+  public static JsonNode readJson(Reader r) throws IOException {
+    return mapper.readValue(r, JsonNode.class);
+  }
+
   /*
    * Utility methods for working with XML format
    */
