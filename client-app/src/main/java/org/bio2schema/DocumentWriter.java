@@ -38,9 +38,9 @@ public class DocumentWriter {
       String fileName = fileNameWithoutExtension + ".json";
       Path fileLocation = Paths.get(outputLocation.toString(), fileName);
       JacksonUtils.prettyPrint(result.getContent(), new FileOutputStream(fileLocation.toFile()));
-      logger.info("Succeed transforming document: [{}]", result.getInputLocation().getFileName());
+      logger.info("Succeed writing document: [{}]", result.getInputLocation().getFileName());
     } catch (Exception e) {
-      logger.error("Failed transforming document: [{}]", result.getInputLocation().getFileName());
+      logger.error("Failed writing document: [{}]", result.getInputLocation().getFileName());
       logger.error(e.getMessage());
     }
   }
