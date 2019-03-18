@@ -1,5 +1,5 @@
 // Name: PubMed XML Mapping to Schema.org
-// Version: 1.0
+// Version: 1.1
 // Format: JSLT (https://github.com/schibsted/jslt)
 
 // ===== VARIABLE DEFINITIONS ======
@@ -14,10 +14,17 @@ let articleAnnotatedDescriptions = if(is-array($abstractText)) [ for($abstractTe
 let articleKeywords = [ for(unique([.MedlineCitation.KeywordList.Keyword])) ."" ]
 let elocations = unique([.MedlineCitation.Article.ELocationID])
 let articleDoi = { for($elocations) "url": "http://doi.org/" + ."" if(.EIdType=="doi") }
-let articlePublicationDate = if (.MedlineCitation.Article.ArticleDate)
-   .MedlineCitation.Article.ArticleDate.Year +
-   "-" + .MedlineCitation.Article.ArticleDate.Month +
-   "-" + .MedlineCitation.Article.ArticleDate.Day
+let articlePublicationDate =
+   if (.MedlineCitation.Article.ArticleDate)
+      reformat-date(.MedlineCitation.Article.ArticleDate.Year +
+         "-" + .MedlineCitation.Article.ArticleDate.Month +
+         "-" + .MedlineCitation.Article.ArticleDate.Day, "yyyy-MM-dd", "yyyy-MM-dd")
+   else if (.PubmedData.History.PubMedPubDate)
+      let pubMedPubDate = [ for (.PubmedData.History.PubMedPubDate) . if(.PubStatus=="pubmed") ]
+      if ($pubMedPubDate)
+         reformat-date($pubMedPubDate[0].Year +
+            "-" + $pubMedPubDate[0].Month +
+            "-" + $pubMedPubDate[0].Day, "yyyy-MM-dd", "yyyy-MM-dd")
 let authors = unique([.MedlineCitation.Article.AuthorList.Author])
 let grantList = unique([.MedlineCitation.Article.GrantList.Grant])
 let agencies = unique([ for($grantList) .Agency ])

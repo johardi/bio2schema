@@ -15,7 +15,8 @@ public class MedicalScholarlyArticleTransformer implements Transformer {
   public MedicalScholarlyArticleTransformer() {
     jsltExpression = Parser.compileResource(SOURCE_JSLT_RESOURCE,
         Sets.newHashSet(
-            ExtensionFunctions.UNIQUE));
+            ExtensionFunctions.UNIQUE,
+            ExtensionFunctions.REFORMAT_DATE));
   }
 
   @Override
