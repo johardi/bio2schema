@@ -1,5 +1,5 @@
 // Name: PubMed XML Mapping to Schema.org
-// Version: 1.1
+// Version: 1.2
 // Format: JSLT (https://github.com/schibsted/jslt)
 
 // ===== VARIABLE DEFINITIONS ======
@@ -25,6 +25,16 @@ let articlePublicationDate =
          reformat-date($pubMedPubDate[0].Year +
             "-" + $pubMedPubDate[0].Month +
             "-" + $pubMedPubDate[0].Day, "yyyy-MM-dd", "yyyy-MM-dd")
+let periodicalPublicationDate =
+   if (.MedlineCitation.Article.Journal.JournalIssue.PubDate.Month)
+      if (contains(.MedlineCitation.Article.Journal.JournalIssue.PubDate.Month, ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]))
+         reformat-date(.MedlineCitation.Article.Journal.JournalIssue.PubDate.Year
+            + "-" + .MedlineCitation.Article.Journal.JournalIssue.PubDate.Month, "yyyy-MMM", "yyyy-MM")
+      else
+         reformat-date(.MedlineCitation.Article.Journal.JournalIssue.PubDate.Year
+            + "-" + .MedlineCitation.Article.Journal.JournalIssue.PubDate.Month, "yyyy-MM", "yyyy-MM")
+   else
+      .MedlineCitation.Article.Journal.JournalIssue.PubDate.Year
 let authors = unique([.MedlineCitation.Article.AuthorList.Author])
 let grantList = unique([.MedlineCitation.Article.GrantList.Grant])
 let agencies = unique([ for($grantList) .Agency ])
@@ -65,16 +75,13 @@ let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
         "https://orcid.org/" + capture(.Identifier."", "(?<value>\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\d|X)])").value
   }],
   "isPartOf": if(.MedlineCitation.Article.Journal) {
-    "@type": "PublicationIssue",
+    "@type": ["Periodical" , "PublicationVolume", "PublicationIssue"],
+    "name": .MedlineCitation.Article.Journal.Title,
+    "alternateName": .MedlineCitation.Article.Journal.ISOAbbreviation,
+    "issn": .MedlineCitation.Article.Journal.ISSN."",
+    "volumeNumber": .MedlineCitation.Article.Journal.JournalIssue.Volume,
     "issueNumber": .MedlineCitation.Article.Journal.JournalIssue.Issue,
-    "datePublished": .MedlineCitation.Article.Journal.JournalIssue.PubDate.Year,
-    "isPartOf": {
-      "@type": ["Periodical" , "PublicationVolume"],
-      "name": .MedlineCitation.Article.Journal.Title,
-      "alternateName": .MedlineCitation.Article.Journal.ISOAbbreviation,
-      "issn": .MedlineCitation.Article.Journal.ISSN."",
-      "volumeNumber": .MedlineCitation.Article.Journal.JournalIssue.Volume
-    }
+    "datePublished": $periodicalPublicationDate
   },
   "funder": [ for($agencies) {
     "@type": "Organization",
