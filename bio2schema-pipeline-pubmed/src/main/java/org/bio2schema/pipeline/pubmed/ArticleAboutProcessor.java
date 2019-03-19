@@ -1,6 +1,20 @@
 package org.bio2schema.pipeline.pubmed;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import javax.annotation.Nonnull;
+import org.bio2schema.api.pipeline.MultiProcessor;
+import org.bio2schema.api.pipeline.Processor;
+import org.bio2schema.api.reconciliation.EntityReconciler;
+import org.bio2schema.api.reconciliation.entitytype.MedicalEntity;
+import org.bio2schema.api.reconciliation.entitytype.MedicalEntity.MedicalCode;
+import org.bio2schema.util.JacksonUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Lists;
 import static org.bio2schema.util.JsonMutators.append;
 import static org.bio2schema.util.JsonMutators.set;
 import static org.bio2schema.util.JsonMutators.with;
@@ -15,27 +29,19 @@ import static org.bio2schema.vocab.SchemaOrg.PROPERTY_CODE_VALUE;
 import static org.bio2schema.vocab.SchemaOrg.PROPERTY_CODING_SYSTEM;
 import static org.bio2schema.vocab.SchemaOrg.PROPERTY_NAME;
 import static org.bio2schema.vocab.SchemaOrg.TYPE_MEDICAL_CODE;
-import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import javax.annotation.Nonnull;
-import org.bio2schema.api.pipeline.Processor;
-import org.bio2schema.api.reconciliation.EntityReconciler;
-import org.bio2schema.api.reconciliation.entitytype.MedicalEntity;
-import org.bio2schema.api.reconciliation.entitytype.MedicalEntity.MedicalCode;
-import org.bio2schema.util.JacksonUtils;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Lists;
 
-public class ArticleAboutProcessor implements Processor {
+public class ArticleAboutProcessor implements MultiProcessor {
 
   private final List<Processor> subProcessors = Lists.newArrayList();
 
   public ArticleAboutProcessor addSubProcessor(@Nonnull Processor processor) {
-    subProcessors.add(checkNotNull(processor));
+    registerProcessor(processor);
     return this;
+  }
+
+  @Override
+  public void registerProcessor(@Nonnull Processor processor) {
+    subProcessors.add(checkNotNull(processor));
   }
 
   @Override
