@@ -23,10 +23,10 @@ The table below shows the data mapping used to transform DrugBank XML data to Sc
 `keywords` | `/MedlineCitation/KeywordList` | String | * |
 `pagination` | `/MedlineCitation/Article/Pagination/MedlinePgn` | String | 1 |
 `url` | `/MedlineCitation/Article/ELocationID` | URL | 1 |
-`datePublished` | `/MedlineCitation/Article/ArticleDate` | Date | 1 |
+`datePublished` | `/MedlineCitation/Article/ArticleDate` | Date | 1 | If the preferred element doesn't exist, the `/PubmedData/History/PubMedPubDate` is used instead
 `inLanguage` | `/MedlineCitation/Article/Language` | String | 1 |
 `author` | `/MedlineCitation/Article/AuthorList` | [Person](https://schema.org/Person) | * | An entity reconciler will be used to get the affiliation's entity id via [Dbpedia lookup service](https://wiki.dbpedia.org/lookup). The author's ORCID will also be extracted, if present
-`isPartOf` | `/MedlineCitation/Article/Journal` | [PublicationIssue](https://schema.org/PublicationIssue) | 1 | The [Periodical](https://schema.org/Periodical) and [PublicationVolume](https://schema.org/PublicationVolume) types will also be added to provide more complete information
+`isPartOf` | `/MedlineCitation/Article/Journal` | [Periodical](https://schema.org/Periodical),<br>[PublicationVolume](https://schema.org/PublicationVolume),<br>[PublicationIssue](https://schema.org/PublicationIssue) | 1 |
 `funder` | `/MedlineCitation/Article/GrantList/Grant/Agency` | [Organization](https://schema.org/Organization) | * | An entity reconciler will be used to get the entity id via [Dbpedia lookup service](https://wiki.dbpedia.org/lookup)
 `citation` | `/PubmedData/ReferenceList` | [MedicalScholarlyArticle](https://health-lifesci.schema.org/MedicalScholarlyArticle) | * | A persistent identifier will be included to refer to an existing resource
 `about` | `/MedlineCitation/MeshHeadingList` | [MedicalEntity](https://health-lifesci.schema.org/MedicalEntity) | * | An entity reconciler will be used to get the medical code via [BioPortal search service](http://data.bioontology.org/documentation#nav_search)
@@ -96,18 +96,16 @@ The example below shows the result of executing the pipeline against an article 
     }
   ],
   "isPartOf": {
-    "@type": "PublicationIssue",
-    "datePublished": "2016",
-    "isPartOf": {
-      "@type": [
-        "Periodical",
-        "PublicationVolume"
-      ],
-      "name": "PLoS currents",
-      "alternateName": "PLoS Curr",
-      "issn": "2157-3999",
-      "volumeNumber": "8"
-    }
+    "@type": [
+      "Periodical",
+      "PublicationVolume",
+      "PublicationIssue"
+    ],
+    "name": "PLoS currents",
+    "alternateName": "PLoS Curr",
+    "issn": "2157-3999",
+    "volumeNumber": "8",
+    "datePublished": "2016-08"
   }
 }
 ```
