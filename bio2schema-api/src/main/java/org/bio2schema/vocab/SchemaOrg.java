@@ -809,6 +809,7 @@ public final class SchemaOrg {
   public static final String PROPERTY_RUNS_TO = "runsTo";
   public static final String PROPERTY_RUNTIME = "runtime";
   public static final String PROPERTY_RUNTIME_PLATFORM = "runtimePlatform";
+  public static final String PROPERTY_RXCUI = "rxcui";
   public static final String PROPERTY_SAFETY_CONSIDERATION = "safetyConsideration";
   public static final String PROPERTY_SALARY_CURRENCY = "salaryCurrency";
   public static final String PROPERTY_SAME_AS = "sameAs";
