@@ -3,6 +3,7 @@ dependencies {
   implementation project(":bio2schema-pipeline-clinicaltrials")
   implementation project(":bio2schema-pipeline-pubmed")
   implementation project(":bio2schema-pipeline-drugbank")
+  implementation project(":bio2schema-pipeline-geo")
   implementation "com.fasterxml.jackson.core:jackson-databind:${jacksonDatabindVersion}"
 }
 
