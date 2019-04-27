@@ -1,0 +1,92 @@
+// Name: GEO XML Mapping to Schema.org
+// Version: 1.0
+// Format: JSLT (https://github.com/schibsted/jslt)
+
+// ===== VARIABLE DEFINITIONS ======
+let dataCatalogId = "https://identifiers.org/geo/" + .Series.Accession.""
+let dataCatalogAccession = .Series.Accession.""
+let dataCatalogUrl = "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=" + .Series.Accession.""
+
+// ===== MAPPING DEFINITION ========
+{
+  "@context": "http://schema.org",
+  "@id": $dataCatalogId,
+  "@type": "DataCatalog",
+  "additionalType": .Series.Type,
+  "identifier": $dataCatalogAccession,
+  "name": trim(.Series.Title),
+  "description": trim(.Series.Summary),
+  "disambiguatingDescription": trim(.Series."Overall-Design"),
+  "url": $dataCatalogUrl,
+  "creator": [ for(flatten([.Contributor])) {
+    "@type": "Person",
+    "givenName": .Person.First,
+    "familyName": .Person.Last,
+    "affiliation": if(.Organization) {
+      "@type": "Organization",
+      "name": .Organization
+    }
+  } if(.Person)],
+  "measurementTechnique": .Platform.Title,
+  "dateCreated": .Series.Status.Submission-Date,
+  "datePublished": .Series.Status.Release-Date,
+  "dateModified": .Series.Status.Last-Update-Date,
+  "dataset": [ for(flatten([.Sample])) {
+    "@id": "https://identifiers.org/geo/" + .Accession."",
+    "@type": "Dataset",
+    "additionalType": .Type,
+    "identifier": .Accession."",
+    "name": trim(.Title),
+    "description": trim(.Description),
+    "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=" + .Accession."",
+    "about": [ for(flatten([.Channel])) {
+      "@type": "MedicalEntity",
+      "name": .Organism."",
+      "disambiguatingDescription": .Source,
+      "code": {
+        "@type": "MedicalCode",
+        "codeValue": .Organism.taxid,
+        "codingSystem": "NCBITAXON"
+      },
+      "additionalProperty": [ for(flatten([.Characteristics])) {
+        "@type": "PropertyValue",
+        "name": .tag,
+        "value": trim(."")
+      } if(."")]
+    }],
+    "variableMeasured": [ for(flatten([.Data-Table.Column])) {
+      "@type": "PropertyValue",
+      "name": .Name,
+      "description": trim(.Description)
+    } if(.Name)],
+    "distribution": [ for(flatten([."Supplementary-Data"])) {
+      "@type": "DataDownload",
+      "contentUrl": trim(.""),
+      "fileFormat": uppercase(.type),
+      "encodingFormat": if(contains(".gz", trim(.""))) "application/gzip"
+                        else if(contains(".zip", trim(.""))) "application/zip"
+                        else "text/plain"
+    } if(.type!="unknown")],
+    "includedInDataCatalog": {
+      "@type": "DataCatalog",
+      "@id": $dataCatalogId,
+      "identifier": $dataCatalogAccession,
+      "url": $dataCatalogUrl
+    },
+    "dateCreated": .Status.Submission-Date,
+    "datePublished": .Status.Release-Date,
+    "dateModified": .Status.Last-Update-Date
+  }],
+  "isPartOf": [ for(flatten([.Series.Relation])) {
+    "@id": if(.type=="BioProject") "https://identifiers.org/bioproject/" + replace(.target, "https://www.ncbi.nlm.nih.gov/bioproject/", "")
+           else if (.type=="SRA") "https://identifiers.org/insdc.sra/" + replace(.target, "https://www.ncbi.nlm.nih.gov/sra\\?term=", ""),
+    "@type": "DataCatalog",
+    "additionalType": .type,
+    "url": .target
+  } if(.type=="BioProject" or .type=="SRA")],
+  "subjectOf": if (.Series."Pubmed-ID") {
+    "@id": "https://identifiers.org/pubmed/" + .Series."Pubmed-ID",
+    "@type": "MedicalScholarlyArticle",
+    "url": "https://www.ncbi.nlm.nih.gov/pubmed/" + .Series."Pubmed-ID"
+  }
+}
