@@ -48,7 +48,7 @@ public final class PubMedPipelineFactory implements PipelineFactory {
   
   private EntityReconciler<GenericEntity> setupDbpediaLookupForOrganization() {
     DbpediaService dbpediaService = new DbpediaService();
-    DbpediaSimilarityLookup dbpediaLookup = new DbpediaSimilarityLookup(dbpediaService, 0.965);
+    DbpediaSimilarityLookup dbpediaLookup = new DbpediaSimilarityLookup(dbpediaService, 0.975);
     dbpediaLookup.searchOnly(TYPE_ORGANIZATION,
         TYPE_COLLEGE_OR_UNIVERSITY,
         TYPE_EDUCATIONAL_ORGANIZATION,
