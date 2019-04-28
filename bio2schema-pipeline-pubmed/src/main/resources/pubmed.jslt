@@ -62,7 +62,7 @@ let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
   "url": $articleDoi.url,
   "datePublished": $articlePublicationDate,
   "inLanguage": .MedlineCitation.Article.Language,
-  "author": if($authors) flatten([
+  "author": if(.MedlineCitation.Article.AuthorList) flatten([
     { "@id": if($firstAuthor.Identifier.Source=="ORCID")
              "http://identifiers.org/orcid/" + capture($firstAuthor.Identifier."", "(?<value>\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\d|X)])").value,
       "@type": "Person",
@@ -89,7 +89,7 @@ let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
       },
       "url": if (.Identifier.Source=="ORCID")
              "https://orcid.org/" + capture(.Identifier."", "(?<value>\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\d|X)])").value
-  }]]),
+  } if(.LastName) ]]),
   "isPartOf": if(.MedlineCitation.Article.Journal) {
     "@type": ["Periodical" , "PublicationVolume", "PublicationIssue"],
     "name": .MedlineCitation.Article.Journal.Title,
