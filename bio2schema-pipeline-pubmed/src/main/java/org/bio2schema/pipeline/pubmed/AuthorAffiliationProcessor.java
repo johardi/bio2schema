@@ -19,6 +19,7 @@ import org.bio2schema.api.pipeline.Processor;
 import org.bio2schema.api.recognition.EntityRecognizer;
 import org.bio2schema.api.reconciliation.EntityReconciler;
 import org.bio2schema.api.reconciliation.entitytype.GenericEntity;
+import org.bio2schema.util.JacksonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
@@ -37,7 +38,9 @@ public class AuthorAffiliationProcessor implements Processor {
   public JsonNode process(JsonNode input) throws IOException {
     checkIfObjectNode(input);
     JsonNode author = input.path(PROPERTY_AUTHOR);
-    if (author.isArray()) {
+    if (author.isMissingNode()) {
+      set(input, with(PROPERTY_AUTHOR, JacksonUtils.createEmptyArrayNode()));
+    } else if (author.isArray()) {
       processAuthor((ArrayNode) author);
     }
     return input;
