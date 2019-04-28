@@ -59,7 +59,7 @@ public final class PubMedPipelineFactory implements PipelineFactory {
 
   private EntityReconciler<MedicalEntity> setupBioPortalSearch() {
     BioPortalSearch bioPortalSearch = new BioPortalSearch(new BioPortalService());
-    return new CachedEntityReconciler<>(bioPortalSearch, 500);
+    return new CachedEntityReconciler<>(bioPortalSearch, 1000);
   }
 
   private EntityReconciler<MedicalEntity> setupDrugBankLookup() {
