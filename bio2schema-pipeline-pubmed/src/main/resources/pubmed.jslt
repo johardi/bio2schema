@@ -35,7 +35,9 @@ let periodicalPublicationDate =
             + "-" + .MedlineCitation.Article.Journal.JournalIssue.PubDate.Month, "yyyy-MM", "yyyy-MM")
    else
       .MedlineCitation.Article.Journal.JournalIssue.PubDate.Year
-let authors = unique([.MedlineCitation.Article.AuthorList.Author])
+let authors = flatten([.MedlineCitation.Article.AuthorList.Author])
+let firstAuthor = $authors[0]
+let collaborators = $authors[1:]
 let grantList = unique([.MedlineCitation.Article.GrantList.Grant])
 let agencies = unique([ for($grantList) .Agency ])
 let articleCitations = unique([.PubmedData.ReferenceList.Reference])
@@ -60,20 +62,34 @@ let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
   "url": $articleDoi.url,
   "datePublished": $articlePublicationDate,
   "inLanguage": .MedlineCitation.Article.Language,
-  "author": [ for($authors) {
-    "@id": if(.Identifier.Source=="ORCID")
-        "http://identifiers.org/orcid/" + capture(.Identifier."", "(?<value>\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\d|X)])").value,
-    "@type": "Person",
-    "givenName": .ForeName,
-    "familyName": .LastName,
-    "affiliation": if(.AffiliationInfo) {
-      "@type": "Organization",
-      "alternateName": if(is-array(.AffiliationInfo)) .AffiliationInfo[0].Affiliation
-              else .AffiliationInfo.Affiliation
-    },
-    "url": if (.Identifier.Source=="ORCID")
-        "https://orcid.org/" + capture(.Identifier."", "(?<value>\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\d|X)])").value
-  }],
+  "author": if($authors) flatten([
+    { "@id": if($firstAuthor.Identifier.Source=="ORCID")
+             "http://identifiers.org/orcid/" + capture($firstAuthor.Identifier."", "(?<value>\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\d|X)])").value,
+      "@type": "Person",
+      "additionalType": "http://purl.org/spar/scoro/principal-author",
+      "givenName": $firstAuthor.ForeName,
+      "familyName": $firstAuthor.LastName,
+      "affiliation": if($firstAuthor.AffiliationInfo) {
+        "@type": "Organization",
+        "alternateName": if(is-array($firstAuthor.AffiliationInfo)) $firstAuthor.AffiliationInfo[0].Affiliation
+                else $firstAuthor.AffiliationInfo.Affiliation
+      },
+      "url": if ($firstAuthor.Identifier.Source=="ORCID")
+             "https://orcid.org/" + capture($firstAuthor.Identifier."", "(?<value>\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\d|X)])").value
+    }, [ for($collaborators) {
+      "@id": if(.Identifier.Source=="ORCID")
+             "http://identifiers.org/orcid/" + capture(.Identifier."", "(?<value>\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\d|X)])").value,
+      "@type": "Person",
+      "givenName": .ForeName,
+      "familyName": .LastName,
+      "affiliation": if(.AffiliationInfo) {
+        "@type": "Organization",
+        "alternateName": if(is-array(.AffiliationInfo)) .AffiliationInfo[0].Affiliation
+                else .AffiliationInfo.Affiliation
+      },
+      "url": if (.Identifier.Source=="ORCID")
+             "https://orcid.org/" + capture(.Identifier."", "(?<value>\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\d|X)])").value
+  }]]),
   "isPartOf": if(.MedlineCitation.Article.Journal) {
     "@type": ["Periodical" , "PublicationVolume", "PublicationIssue"],
     "name": .MedlineCitation.Article.Journal.Title,
