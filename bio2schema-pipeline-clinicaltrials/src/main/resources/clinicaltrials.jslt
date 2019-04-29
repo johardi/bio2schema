@@ -8,9 +8,8 @@ let studyDescription = if(.detailed_description.textblock) .detailed_description
 let conditions = if(.condition) flatten([.condition])
 let interventions = if(.intervention) flatten([.intervention])
 let studySubjects = unique([$conditions, $interventions])
-let leadSponsor = if(.sponsors.lead_sponsor) { "name": .sponsors.lead_sponsor.agency, "type": "Lead Sponsor" }
-let collaborators = if(.sponsors.collaborator) [ for(flatten([.sponsors.collaborator])) { "name": .agency, "type": "Collaborator" } ]
-let studySponsors = unique([$leadSponsor, $collaborators])
+let leadSponsor = if(.sponsors.lead_sponsor) { "name": .sponsors.lead_sponsor.agency }
+let collaborators = if(.sponsors.collaborator) [ for(unique([.sponsors.collaborator])) { "name": .agency } ]
 let studyLocations = if(.location) flatten([.location])
 let studyLocationInCities = unique([ for($studyLocations)
     if(.facility.address.state) .facility.address.city + ", " + .facility.address.state
@@ -50,11 +49,15 @@ let studyPublications = unique([.reference, .results_reference])
     "@type": "MedicalEntity",
     "name": .name
   }],
-  "sponsor": [ for($studySponsors) {
+  "sponsor": flatten([{
+    "@type": "Organization",
+    "name": $leadSponsor.name,
+    "additionalType": "http://purl.org/spar/scoro/sponsor
+  }, [ for($collaborators) {
     "@type": "Organization",
     "name": .name,
-    "additionalType": .type
-  }],
+    "additionalType": "http://purl.org/spar/scoro/collaborator
+  }]]),
   "studyLocation": [ for($studyLocationInCities) {
     "@type": "City",
     "name": .
