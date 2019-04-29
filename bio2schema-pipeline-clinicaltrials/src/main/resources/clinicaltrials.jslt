@@ -1,12 +1,12 @@
 // Name: ClinicalTrials.gov XML Mapping to Schema.org
-// Version: 1.0
+// Version: 1.1
 // Format: JSLT (https://github.com/schibsted/jslt)
 
 // ===== VARIABLE DEFINITIONS ======
 let studyName = if(.official_title) .official_title else .brief_title
 let studyDescription = if(.detailed_description.textblock) .detailed_description.textblock else .brief_summary.textblock
-let conditions = if(.condition) [ for(flatten([.condition])) { "name": ., "type": "Condition or disease" } ]
-let interventions = if(.intervention) [ for(flatten([.intervention])) { "name": .intervention_name, "type": "Intervention or treatment" } ]
+let conditions = if(.condition) flatten([.condition])
+let interventions = if(.intervention) flatten([.intervention])
 let studySubjects = unique([$conditions, $interventions])
 let leadSponsor = if(.sponsors.lead_sponsor) { "name": .sponsors.lead_sponsor.agency, "type": "Lead Sponsor" }
 let collaborators = if(.sponsors.collaborator) [ for(flatten([.sponsors.collaborator])) { "name": .agency, "type": "Collaborator" } ]
@@ -48,8 +48,7 @@ let studyPublications = unique([.reference, .results_reference])
   "url": .required_header.url,
   "studySubject": [ for($studySubjects) {
     "@type": "MedicalEntity",
-    "name": .name,
-    "additionalType": .type
+    "name": .name
   }],
   "sponsor": [ for($studySponsors) {
     "@type": "Organization",
