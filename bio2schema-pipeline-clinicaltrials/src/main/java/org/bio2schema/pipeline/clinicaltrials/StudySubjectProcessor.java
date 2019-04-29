@@ -1,7 +1,6 @@
 package org.bio2schema.pipeline.clinicaltrials;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.bio2schema.util.JsonMutators.append;
 import static org.bio2schema.util.JsonMutators.set;
 import static org.bio2schema.util.JsonMutators.with;
 import static org.bio2schema.util.JsonPreconditions.checkIfArrayNode;
@@ -69,8 +68,7 @@ public final class StudySubjectProcessor implements Processor {
           MedicalEntity medicalEntity = result.get();
           set(studySubject, with(ID, medicalEntity.getId()));
           set(studySubject, with(TYPE, medicalEntity.getType()));
-          set(studySubject, with(PROPERTY_NAME, medicalEntity.getName()));
-          set(studySubject, with(PROPERTY_ALTERNATE_NAME, medicalEntity.getSynonyms()));
+          set(studySubject, with(PROPERTY_NAME, subjectName));
           Optional<MedicalCode> medicalCode = medicalEntity.getMedicalCode();
           if (medicalCode.isPresent()) {
             ObjectNode code = JacksonUtils.createEmptyObjectNode();
@@ -78,6 +76,8 @@ public final class StudySubjectProcessor implements Processor {
             set(code, with(ID, medicalCode.get().getCui()));
             set(code, with(PROPERTY_CODE_VALUE, medicalCode.get().getCodeValue()));
             set(code, with(PROPERTY_CODING_SYSTEM, medicalCode.get().getCodingSystem()));
+            set(code, with(PROPERTY_NAME, medicalEntity.getName()));
+            set(code, with(PROPERTY_ALTERNATE_NAME, medicalEntity.getSynonyms()));
             set(studySubject, with(PROPERTY_CODE, code));
           }
         }
@@ -105,8 +105,6 @@ public final class StudySubjectProcessor implements Processor {
           MedicalEntity medicalEntity = result.get();
           set(studySubject, with(ID, medicalEntity.getId()));
           set(studySubject, with(TYPE, medicalEntity.getType()));
-          set(studySubject, with(PROPERTY_NAME, medicalEntity.getName()));
-          append(studySubject, with(PROPERTY_ALTERNATE_NAME, medicalEntity.getSynonyms()));
         }
       }
       return input;
