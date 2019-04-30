@@ -5,9 +5,8 @@
 // ===== VARIABLE DEFINITIONS ======
 let studyName = if(.official_title) .official_title else .brief_title
 let studyDescription = if(.detailed_description.textblock) .detailed_description.textblock else .brief_summary.textblock
-let conditions = if(.condition) flatten([.condition])
-let interventions = if(.intervention) flatten([.intervention])
-let studySubjects = unique([$conditions, $interventions])
+let conditions = if(.condition) [ for(flatten([.condition])) { "name": . } ]
+let interventions = if(.intervention) [ for(flatten([.intervention])) { "name": .intervention_name } ]
 let leadSponsor = if(.sponsors.lead_sponsor) { "name": .sponsors.lead_sponsor.agency }
 let collaborators = if(.sponsors.collaborator) [ for(unique([.sponsors.collaborator])) { "name": .agency } ]
 let studyLocations = if(.location) flatten([.location])
@@ -45,10 +44,16 @@ let studyPublications = unique([.reference, .results_reference])
   "trialDesign": .study_design_info.intervention_model,
   "population": unwrap(.eligibility.criteria.textblock),
   "url": .required_header.url,
-  "studySubject": [ for($studySubjects) {
-    "@type": "MedicalEntity",
-    "name": .name
-  }],
+  "studySubject": flatten([
+    [ for($conditions) {
+        "@type": "MedicalEntity",
+        "name": .name
+      }],
+    [ for($interventions) {
+        "@type": "MedicalEntity",
+        "name": .name
+      }]
+  ]),
   "sponsor": flatten([{
     "@type": "Organization",
     "name": $leadSponsor.name,
