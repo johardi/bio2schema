@@ -12,7 +12,6 @@ let dataCatalogUrl = "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=" + .Se
   "@context": "http://schema.org",
   "@id": $dataCatalogId,
   "@type": "DataCatalog",
-  "additionalType": .Series.Type,
   "identifier": $dataCatalogAccession,
   "name": trim(.Series.Title),
   "description": trim(.Series.Summary),
@@ -34,7 +33,6 @@ let dataCatalogUrl = "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=" + .Se
   "dataset": [ for(flatten([.Sample])) {
     "@id": "https://identifiers.org/geo/" + .Accession."",
     "@type": "Dataset",
-    "additionalType": .Type,
     "identifier": .Accession."",
     "name": trim(.Title),
     "description": trim(.Description),
@@ -81,7 +79,6 @@ let dataCatalogUrl = "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=" + .Se
     "@id": if(.type=="BioProject") "https://identifiers.org/bioproject/" + replace(.target, "https://www.ncbi.nlm.nih.gov/bioproject/", "")
            else if (.type=="SRA") "https://identifiers.org/insdc.sra/" + replace(.target, "https://www.ncbi.nlm.nih.gov/sra\\?term=", ""),
     "@type": "DataCatalog",
-    "additionalType": .type,
     "url": .target
   } if(.type=="BioProject" or .type=="SRA")],
   "subjectOf": if (.Series."Pubmed-ID") {
