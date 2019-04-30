@@ -9,6 +9,7 @@ import static org.bio2schema.util.JsonPreconditions.checkIfObjectNode;
 import static org.bio2schema.vocab.JsonLd.ID;
 import static org.bio2schema.vocab.JsonLd.TYPE;
 import static org.bio2schema.vocab.SchemaOrg.PROPERTY_ABOUT;
+import static org.bio2schema.vocab.SchemaOrg.PROPERTY_ALTERNATE_NAME;
 import static org.bio2schema.vocab.SchemaOrg.PROPERTY_CODE;
 import static org.bio2schema.vocab.SchemaOrg.PROPERTY_CODE_VALUE;
 import static org.bio2schema.vocab.SchemaOrg.PROPERTY_CODING_SYSTEM;
@@ -60,6 +61,8 @@ public class SampleOrganismProcessor implements Processor {
           set(meshCode, with(ID, medicalCode.get().getCui()));
           set(meshCode, with(PROPERTY_CODE_VALUE, medicalCode.get().getCodeValue()));
           set(meshCode, with(PROPERTY_CODING_SYSTEM, medicalCode.get().getCodingSystem()));
+          set(meshCode, with(PROPERTY_NAME, medicalEntity.getName()));
+          set(meshCode, with(PROPERTY_ALTERNATE_NAME, medicalEntity.getSynonyms()));
           append(topic, with(PROPERTY_CODE, meshCode));
         }
       }
