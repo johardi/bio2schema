@@ -20,10 +20,6 @@ import static org.bio2schema.util.JsonPreconditions.checkIfObjectNode;
 import static org.bio2schema.vocab.JsonLd.ID;
 import static org.bio2schema.vocab.JsonLd.TYPE;
 import static org.bio2schema.vocab.SchemaOrg.*;
-import static org.bio2schema.vocab.SchemaOrg.PROPERTY_CODE_VALUE;
-import static org.bio2schema.vocab.SchemaOrg.PROPERTY_CODING_SYSTEM;
-import static org.bio2schema.vocab.SchemaOrg.PROPERTY_NAME;
-import static org.bio2schema.vocab.SchemaOrg.TYPE_MEDICAL_CODE;
 
 public class DrugNameProcessor implements MultiProcessor {
 
@@ -70,6 +66,8 @@ public class DrugNameProcessor implements MultiProcessor {
             set(code, with(ID, medicalCode.get().getCui()));
             set(code, with(PROPERTY_CODE_VALUE, medicalCode.get().getCodeValue()));
             set(code, with(PROPERTY_CODING_SYSTEM, medicalCode.get().getCodingSystem()));
+            set(code, with(PROPERTY_NAME, medicalEntity.getName()));
+            set(code, with(PROPERTY_ALTERNATE_NAME, medicalEntity.getSynonyms()));
             set(drug, with(PROPERTY_CODE, code));
           }
         }
