@@ -52,11 +52,11 @@ let studyPublications = unique([.reference, .results_reference])
   "sponsor": flatten([{
     "@type": "Organization",
     "name": $leadSponsor.name,
-    "additionalType": "http://purl.org/spar/scoro/sponsor
+    "additionalType": "http://purl.org/spar/scoro/sponsor"
   }, [ for($collaborators) {
     "@type": "Organization",
     "name": .name,
-    "additionalType": "http://purl.org/spar/scoro/collaborator
+    "additionalType": "http://purl.org/spar/scoro/collaborator"
   }]]),
   "studyLocation": [ for($studyLocationInCities) {
     "@type": "City",
