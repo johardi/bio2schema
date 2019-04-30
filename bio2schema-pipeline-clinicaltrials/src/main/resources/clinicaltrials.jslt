@@ -72,6 +72,7 @@ let studyPublications = unique([.reference, .results_reference])
   "subjectOf": [ for($studyPublications) {
     "@type": "MedicalScholarlyArticle",
     "@id": "http://identifiers.org/pubmed/" + .PMID,
-    "name": split(.citation, "\\. ")[1]
+    "name": split(.citation, "\\. ")[1],
+    "url": "https://www.ncbi.nlm.nih.gov/pubmed/" + .PMID
   } if(.PMID)]
 }
