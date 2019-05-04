@@ -60,7 +60,6 @@ public final class ClinicalTrialsPipelineFactory implements PipelineFactory {
 
   private EntityReconciler<MedicalEntity> setupBioPortalSearch() {
     BioPortalService bioPortalService = new BioPortalService();
-    bioPortalService.setTargetOntologies("MESH,ICD10CM");
     BioPortalSearch bioPortalSeach = new BioPortalSearch(bioPortalService);
     return new CachedEntityReconciler<>(bioPortalSeach, 200);
   }
