@@ -41,11 +41,6 @@ let dataCatalogUrl = "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=" + .Se
       let organism = if(is-array(.Organism)) .Organism[0] else .Organism
       "@type": "MedicalEntity",
       "name": $organism."",
-      "code": {
-        "@type": "MedicalCode",
-        "codeValue": .Organism.taxid,
-        "codingSystem": "NCBITAXON"
-      },
       "additionalProperty": combine([
         if($organism.taxid) {
           "@type": "PropertyValue",

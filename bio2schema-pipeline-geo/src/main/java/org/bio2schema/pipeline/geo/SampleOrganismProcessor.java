@@ -1,7 +1,6 @@
 package org.bio2schema.pipeline.geo;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.bio2schema.util.JsonMutators.append;
 import static org.bio2schema.util.JsonMutators.set;
 import static org.bio2schema.util.JsonMutators.with;
 import static org.bio2schema.util.JsonPreconditions.checkIfArrayNode;
@@ -63,7 +62,7 @@ public class SampleOrganismProcessor implements Processor {
           set(meshCode, with(PROPERTY_CODING_SYSTEM, medicalCode.get().getCodingSystem()));
           set(meshCode, with(PROPERTY_NAME, medicalEntity.getName()));
           set(meshCode, with(PROPERTY_ALTERNATE_NAME, medicalEntity.getSynonyms()));
-          append(topic, with(PROPERTY_CODE, meshCode));
+          set(topic, with(PROPERTY_CODE, meshCode));
         }
       }
     }
