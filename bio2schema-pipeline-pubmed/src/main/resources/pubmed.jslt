@@ -59,7 +59,7 @@ let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
   "disambiguatingDescription": $articleAnnotatedDescriptions,
   "keywords": $articleKeywords,
   "pagination": .MedlineCitation.Article.Pagination.MedlinePgn,
-  "url": $articleDoi.url,
+  "url": "https://www.ncbi.nlm.nih.gov/pubmed/" + .MedlineCitation.PMID."",
   "datePublished": $articlePublicationDate,
   "inLanguage": .MedlineCitation.Article.Language,
   "author": if(.MedlineCitation.Article.AuthorList) flatten([
@@ -105,7 +105,8 @@ let meshHeadings = unique([.MedlineCitation.MeshHeadingList.MeshHeading])
   }],
   "citation": [ for($articleCitations) {
     "@type": "MedicalScholarlyArticle",
-    "@id": "http://identifiers.org/pubmed/" + .ArticleIdList.ArticleId.""
+    "@id": "http://identifiers.org/pubmed/" + .ArticleIdList.ArticleId."",
+    "url": "https://www.ncbi.nlm.nih.gov/pubmed/" + .ArticleIdList.ArticleId.""
   } if(.)],
   "about": [ for($meshHeadings) {
     "@type": "MedicalEntity",
