@@ -38,19 +38,35 @@ let dataCatalogUrl = "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=" + .Se
     "description": trim(.Description),
     "url": "https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=" + .Accession."",
     "about": [ for(flatten([.Channel])) {
+      let organism = if(is-array(.Organism)) .Organism[0] else .Organism
       "@type": "MedicalEntity",
-      "name": .Organism."",
-      "disambiguatingDescription": .Source,
+      "name": $organism."",
       "code": {
         "@type": "MedicalCode",
         "codeValue": .Organism.taxid,
         "codingSystem": "NCBITAXON"
       },
-      "additionalProperty": [ for(flatten([.Characteristics])) {
-        "@type": "PropertyValue",
-        "name": .tag,
-        "value": trim(."")
-      } if(."")]
+      "additionalProperty": combine([
+        if($organism.taxid) {
+          "@type": "PropertyValue",
+          "name": "taxonomy id",
+          "value": $organism.taxid
+        },
+        if(.Source) {
+          "@type": "PropertyValue",
+          "name": "source",
+          "value": .Source
+        },
+        if (.Molecule) {
+          "@type": "PropertyValue",
+          "name": "molecule",
+          "value": .Molecule
+        },
+        [ for(flatten([.Characteristics])) {
+          "@type": "PropertyValue",
+          "name": .tag,
+          "value": trim(."")
+        } if(."")]])
     }],
     "variableMeasured": [ for(flatten([.Data-Table.Column])) {
       "@type": "PropertyValue",
