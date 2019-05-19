@@ -41,7 +41,7 @@ let studyPublications = unique([.reference, .results_reference])
   "description": unwrap($studyDescription),
   "status": .overall_status,
   "phase": .phase,
-  "trialDesign": .study_design_info.intervention_model,
+  "trialDesign": .study_design_info.allocation,
   "population": unwrap(.eligibility.criteria.textblock),
   "url": .required_header.url,
   "studySubject": flatten([
