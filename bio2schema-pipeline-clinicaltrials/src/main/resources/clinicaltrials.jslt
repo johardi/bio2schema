@@ -77,5 +77,9 @@ let studyPublications = unique([.reference, .results_reference])
     "@id": "http://identifiers.org/pubmed/" + .PMID,
     "name": split(.citation, "\\. ")[1],
     "url": "https://www.ncbi.nlm.nih.gov/pubmed/" + .PMID
-  } if(.PMID)]
+  } if(.PMID)],
+  "startDate": if(.start_date."") reformat-date(.start_date."", "MMMMM yyyy", "yyyy-MM")
+               else reformat-date(.start_date, "MMMMM yyyy", "yyyy-MM"),
+  "endDate": if(.completion_date."") reformat-date(.completion_date."", "MMMMM yyyy", "yyyy-MM")
+             else reformat-date(.completion_date, "MMMMM yyyy", "yyyy-MM")
 }

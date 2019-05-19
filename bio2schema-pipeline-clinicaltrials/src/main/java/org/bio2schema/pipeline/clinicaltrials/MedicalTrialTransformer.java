@@ -16,7 +16,8 @@ public final class MedicalTrialTransformer implements Transformer {
     jsltExpression = Parser.compileResource(SOURCE_JSLT_RESOURCE,
         Sets.newHashSet(
             ExtensionFunctions.UNWRAP,
-            ExtensionFunctions.UNIQUE));
+            ExtensionFunctions.UNIQUE,
+            ExtensionFunctions.REFORMAT_DATE));
   }
 
   @Override

@@ -1,5 +1,8 @@
 package org.bio2schema.pipeline.clinicaltrials;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Set;
 import org.bio2schema.util.JacksonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,6 +17,7 @@ public class ExtensionFunctions {
 
   public static Function UNWRAP = new Unwrap();
   public static Function UNIQUE = new Unique();
+  public static Function REFORMAT_DATE = new ReformatDate();
 
   private static abstract class AbstractFunction extends AbstractCallable implements Function {
     public AbstractFunction(String name, int min, int max) {
@@ -75,6 +79,28 @@ public class ExtensionFunctions {
             collector.add(node);
           }
         }
+      }
+    }
+  }
+
+  // REFORMAT-DATE FUNCTION
+  public static class ReformatDate extends AbstractFunction {
+
+    public ReformatDate() {
+      super("reformat-date", 1, 3);
+    }
+
+    @Override
+    public JsonNode call(JsonNode input, JsonNode[] arguments) {
+      String oldDateString = arguments[0].asText();
+      String fromFormat = arguments[1].asText();
+      String toFormat = arguments[2].asText();
+      try {
+        Date originalDate = new SimpleDateFormat(fromFormat).parse(oldDateString);
+        String newDateString = new SimpleDateFormat(toFormat).format(originalDate);
+        return TextNode.valueOf(newDateString);
+      } catch (ParseException e) {
+        throw new RuntimeException(e);
       }
     }
   }
