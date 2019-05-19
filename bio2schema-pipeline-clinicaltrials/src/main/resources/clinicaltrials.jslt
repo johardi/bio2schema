@@ -43,6 +43,9 @@ let studyPublications = unique([.reference, .results_reference])
   "phase": .phase,
   "trialDesign": .study_design_info.allocation,
   "population": unwrap(.eligibility.criteria.textblock),
+  "outcome": [ for(flatten([.primary_outcome]))
+      .measure + if(.time_frame) " [Time frame: " + .time_frame + "]" else ""
+    if(.measure)],
   "url": .required_header.url,
   "studySubject": flatten([
     [ for($conditions) {
