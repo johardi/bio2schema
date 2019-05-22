@@ -80,6 +80,6 @@ let studyPublications = unique([.reference, .results_reference])
   } if(.PMID)],
   "startDate": if (.start_date) if(.start_date."") reformat-date(.start_date."", "MMMMM yyyy", "yyyy-MM")
                else reformat-date(.start_date, "MMMMM yyyy", "yyyy-MM"),
-  "endDate": if (.completion_date) if(.completion_date."") reformat-date(.completion_date."", "MMMMM yyyy", "yyyy-MM")
-             else reformat-date(.completion_date, "MMMMM yyyy", "yyyy-MM")
+  "endDate": if (.primary_completion_date) if(.primary_completion_date."") reformat-date(.primary_completion_date."", "MMMMM yyyy", "yyyy-MM")
+             else reformat-date(.primary_completion_date, "MMMMM yyyy", "yyyy-MM")
 }
