@@ -84,4 +84,8 @@ let studyPublications = unique([.reference, .results_reference])
   "endDate": if (.primary_completion_date) if(.primary_completion_date."")
                reformat-date(.primary_completion_date."", ["MMMMM dd, yyyy", "MMMMM yyyy"], ["yyyy-MM-dd", "yyyy-MM"])
              else reformat-date(.primary_completion_date, ["MMMMM dd, yyyy", "MMMMM yyyy"], ["yyyy-MM-dd", "yyyy-MM"])
+           else
+             if (.completion_date) if(.completion_date."")
+               reformat-date(.completion_date."", ["MMMMM dd, yyyy", "MMMMM yyyy"], ["yyyy-MM-dd", "yyyy-MM"])
+             else reformat-date(.completion_date, ["MMMMM dd, yyyy", "MMMMM yyyy"], ["yyyy-MM-dd", "yyyy-MM"])
 }
