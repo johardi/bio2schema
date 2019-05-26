@@ -78,8 +78,10 @@ let studyPublications = unique([.reference, .results_reference])
     "name": split(.citation, "\\. ")[1],
     "url": "https://www.ncbi.nlm.nih.gov/pubmed/" + .PMID
   } if(.PMID)],
-  "startDate": if (.start_date) if(.start_date."") reformat-date(.start_date."", "MMMMM yyyy", "yyyy-MM")
-               else reformat-date(.start_date, "MMMMM yyyy", "yyyy-MM"),
-  "endDate": if (.primary_completion_date) if(.primary_completion_date."") reformat-date(.primary_completion_date."", "MMMMM yyyy", "yyyy-MM")
-             else reformat-date(.primary_completion_date, "MMMMM yyyy", "yyyy-MM")
+  "startDate": if (.start_date) if(.start_date."")
+                 reformat-date(.start_date."", ["MMMMM dd, yyyy", "MMMMM yyyy"], ["yyyy-MM-dd", "yyyy-MM"])
+               else reformat-date(.start_date, ["MMMMM dd, yyyy", "MMMMM yyyy"], ["yyyy-MM-dd", "yyyy-MM"]),
+  "endDate": if (.primary_completion_date) if(.primary_completion_date."")
+               reformat-date(.primary_completion_date."", ["MMMMM dd, yyyy", "MMMMM yyyy"], ["yyyy-MM-dd", "yyyy-MM"])
+             else reformat-date(.primary_completion_date, ["MMMMM dd, yyyy", "MMMMM yyyy"], ["yyyy-MM-dd", "yyyy-MM"])
 }

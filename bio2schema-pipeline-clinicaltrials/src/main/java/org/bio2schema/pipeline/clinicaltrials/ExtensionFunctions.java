@@ -1,5 +1,6 @@
 package org.bio2schema.pipeline.clinicaltrials;
 
+import static org.bio2schema.util.JsonPreconditions.checkIfArrayNode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,7 +28,7 @@ public class ExtensionFunctions {
 
   // UNWRAP FUNCTION
   public static class Unwrap extends AbstractFunction {
-    
+
     public Unwrap() {
       super("unwrap", 1, 1);
     }
@@ -93,15 +94,22 @@ public class ExtensionFunctions {
     @Override
     public JsonNode call(JsonNode input, JsonNode[] arguments) {
       String oldDateString = arguments[0].asText();
-      String fromFormat = arguments[1].asText();
-      String toFormat = arguments[2].asText();
-      try {
-        Date originalDate = new SimpleDateFormat(fromFormat).parse(oldDateString);
-        String newDateString = new SimpleDateFormat(toFormat).format(originalDate);
-        return TextNode.valueOf(newDateString);
-      } catch (ParseException e) {
-        throw new RuntimeException(e);
+      ArrayNode fromFormat = checkIfArrayNode(arguments[1], "fromFormat argument must be an array");
+      ArrayNode toFormat = checkIfArrayNode(arguments[2], "toFormat argument must be an array");
+      for (int i = 0; i < fromFormat.size(); i++) {
+        String ff = fromFormat.get(i).asText();
+        SimpleDateFormat fromFormatter = new SimpleDateFormat(ff);
+        fromFormatter.setLenient(false);
+        try {
+          Date originalDate = fromFormatter.parse(oldDateString);
+          String tf = toFormat.get(i).asText();
+          String newDateString = new SimpleDateFormat(tf).format(originalDate);
+          return TextNode.valueOf(newDateString);
+        } catch (ParseException e) {
+          continue;
+        }
       }
+      throw new RuntimeException("Unable to parse date: " + oldDateString);
     }
   }
 }
